@@ -1,8 +1,8 @@
 /*
 
 	Project		: Shutter Pod
-	File		: screen_text.h
-	Description	: Text strings for displaying on LCD
+	File		: pwm.cpp
+	Description	: PWM interupts, functions and settings
 	Date		: 6/23/2010
 
 	Shutter Pod is an open source hardware timer for SLR cameras.
@@ -22,17 +22,24 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
- 
-// Spash screen
-char MSG_SPLASH_1[] =		"  Shutter  Pod  ";
-char MSG_SPLASH_2[] =		"  Version  0.1  ";
 
-// Main menu
-char MSG_MAIN_MENU[] =		"Main Menu";
+/*  
+ *  File	: pwm.c
+ *  Date	: 6/23/2010
+ *
+ *  Project	: Shutter Pod
+ *  Author	: D. Wassenberg
+ *  Purpose	: Functions for generating PWM signals
+ *
+ */
 
-char MSG_SETTINGS_OPT[] =	"<-  Settings  ->";
-char MSG_TIME_LPS_OPT[] = 	"<- Time Lapse ->";
-char MSG_LONG_EXP_OPT[] =	"<- Long Expos ->";
-char MSG_MANNUAL_OPT[] =	"<-   Manual   ->";
+#include "global.h"
 
-// Settings menu
+int pwm_init() {
+		
+	return true;
+}
+
+void pwm_set_duty_cycle(int port, int pin, int value) {
+	
+}
