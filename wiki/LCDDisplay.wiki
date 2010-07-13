@@ -1,0 +1,6 @@
+#Hantronix HDM16216L-5 16x2 LCD Display
+
+== Contrast Adjustment ==
+Current characteristics for contrast adjustment (V,,L,, pin).
+ * I,,L,, Max = 450 uA
+ * I,,L,, Visible = 325 uA
