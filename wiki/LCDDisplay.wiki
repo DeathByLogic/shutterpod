@@ -1,6 +1,8 @@
 #Hantronix HDM16216L-5 16x2 LCD Display
 
 == Contrast Adjustment ==
+The contrast for the Hantronix display is controlled by adjusting the current flow from the V,,L,, pin to ground. This can be done using a resistor to tie the pin to ground and limit the current flowing, or in our case using a transistor to adjust the flow of current.
+
 Current characteristics for contrast adjustment (V,,L,, pin).
  * I,,L,, Max = 450 uA
  * I,,L,, Visible = 325 uA
