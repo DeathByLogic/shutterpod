@@ -23,16 +23,6 @@
 
 */
 
-/*  
- *  File	: lcd.h
- *  Date	: 6/23/2010
- *
- *  Project	: Shutter Pod
- *  Author	: D. Wassenberg
- *  Purpose	: Class constructs for LCD interface
- *
- */
-
 // Macros for LCD commands
 #define SETBITS(x, y)	x |= y
 #define CLEARBITS(x, y)	x &= ~y
@@ -54,8 +44,8 @@
 #define	DATA_DIR		DDRD
 
 #if BUS_WIDTH == 4
-	#define DATA_MASK	0xF0
-	#define DATA_SHIFT	4
+	#define DATA_MASK	0x0F
+	#define DATA_SHIFT	0
 #endif
 
 // Bit posistions for various commands / flags
