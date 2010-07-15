@@ -1,8 +1,8 @@
 /*
 
 	Project		: Shutter Pod
-	File		: global.h
-	Description	: Global constants, includes, ...
+	File		: pwm.h
+	Description	: PWM header file
 	Date		: 6/23/2010
 
 	Shutter Pod is an open source hardware timer for SLR cameras.
@@ -23,10 +23,16 @@
 
 */
 
-// Common Macros for setting & clearing bits
-#define SETBITS(x, y)	x |= y
-#define CLEARBITS(x, y)	x &= ~y
+// Pins for PWM output
+#define LCD_BACKLIGHT_PIN	0x20
+#define LCD_CONTRAST_PIN	0x40
+#define LCD_PWM_DIR			DDRD
 
-// constants definitions
-#define true	1
-#define false	0
+// function constructs
+void pwm_init(void);
+void set_backlight_dc(void);
+void set_contrast_dc(void);
+void input_debounce(volatile uint8_t *, bool *, unsigned int *);
+
+extern bool go_button;
+extern unsigned int go_button_counter;

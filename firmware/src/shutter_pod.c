@@ -27,18 +27,29 @@
 #include <avr/io.h>
 #include "global.h"
 #include "lcd.h"
+#include "pwm.h"
 #include "screen_text.h"
 
 // Function constructs
 void config_lcd(void);
+void config_pwm(void);
+
+// Global button variables
+bool go_button;
+unsigned int go_button_counter;
 
 // Global variables 
 lcd disp(LCD_2_LINE | LCD_5_BY_7);
 
 int main (void) {
+	DDRB = 0xFF;
+
 	// Configure the LCD
 	config_lcd();
-	
+
+	// Configure the PWM
+	config_pwm();
+
 	// Print splash screen
 	disp.print(MSG_SPLASH_1, 16);
 	disp.set_display_address(LCD_LINE_2);
@@ -48,6 +59,10 @@ int main (void) {
 	
 
 	// Goto main menu
+
+	while(true) {
+		asm("NOP");
+	}
 }
 
 void config_lcd(void) {
@@ -62,6 +77,6 @@ void config_lcd(void) {
 }
 
 void config_pwm(void) {
-	TCCR0A = 0xA3;
-	TCCR0B = 0x02;
+	pwm_init();
 }
+
