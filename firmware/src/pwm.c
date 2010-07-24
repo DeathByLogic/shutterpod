@@ -30,6 +30,13 @@
 #include "pwm.h"
 #include "lcd.h"
 
+// Global Variables
+bool button_up		= false;
+bool button_down	= false;
+bool button_left	= false;
+bool button_right	= false;
+bool button_go		= false;
+
 // Configure the PWM output for the backlight, contrast and button debouncing.
 void pwm_init(void) {
 	//
@@ -59,9 +66,6 @@ void pwm_init(void) {
 
 	// Enable timer 0 overflow interupt
 	TIMSK0 |= 0x01;
-
-	// Enable global interupts
-	sei();
 }
 
 // Set the duty cycle for the backlight

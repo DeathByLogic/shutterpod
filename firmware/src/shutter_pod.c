@@ -23,16 +23,22 @@
 
 */
 
+// Temp
+extern bool le_flag;
+extern bool tl_flag;
+
 // Includes
 #include <avr/io.h>
+#include <avr/interrupt.h>
 #include "global.h"
+
 #include "lcd.h"
 #include "pwm.h"
+#include "camera.h"
 #include "screen_text.h"
 
 // Function constructs
 void config_lcd(void);
-void config_pwm(void);
 
 // Global button variables
 bool go_button;
@@ -42,13 +48,19 @@ unsigned int go_button_counter;
 lcd disp(LCD_2_LINE | LCD_5_BY_7);
 
 int main (void) {
-	DDRB = 0xFF;
-
+	DDRB = 0x30;
+	
 	// Configure the LCD
 	config_lcd();
 
 	// Configure the PWM
-	config_pwm();
+	pwm_init();
+
+	// Configure the main timer
+	timing_init();
+
+	// Enable global interupts
+	sei();
 
 	// Print splash screen
 	disp.print(MSG_SPLASH_1, 16);
@@ -56,11 +68,15 @@ int main (void) {
 	disp.print(MSG_SPLASH_2, 16);
 	
 	// Wait for 2 sec
-	
 
 	// Goto main menu
 
 	while(true) {
+		//le_flag = false;
+		//tl_flag = true;		
+		//focus(true);
+		asm("NOP");
+		//focus(false);
 		asm("NOP");
 	}
 }
@@ -75,8 +91,3 @@ void config_lcd(void) {
 	// Goto the home location
 	disp.display_home();
 }
-
-void config_pwm(void) {
-	pwm_init();
-}
-
