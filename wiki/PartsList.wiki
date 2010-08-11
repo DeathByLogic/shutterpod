@@ -1,8 +1,8 @@
 #Table of all the parts required.
 
 || Component || Part Number || Description || Package ||
-|| B1 || || 2 x 1.5V Cell Batterys (AA, AAA, ...) || ||
-|| C1, C4 || || 47uF Capacitor || ||
+|| B1 || || 2 x 1.5V Cell Battery's (AA, AAA, ...) || ||
+|| C1, C4 || || 47uF Electrolytic Capacitor || ||
 || C2, C3, C5, C6, C9 || || 0.1uF Capacitor || ||
 || C7, C8 || || 22pF Capacitor || ||
 || DIS1 || HDM16216L-5 || Hantronix 2x16 LCD display with LED back light || ||
