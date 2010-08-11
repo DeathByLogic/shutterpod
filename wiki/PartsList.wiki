@@ -1,14 +1,14 @@
 #Table of all the parts required.
 
 || Component || Part Number || Description || Package ||
+|| B1 || || || ||
 || C1, C4 || 47uF Capacitor || || ||
 || C2, C3, C5, C6, C9 || 0.1uF Capacitor || || ||
 || C7, C8 || 22pF Capacitor || || ||
 || DIS1 || HDM16216L-5 || || ||
 || J1 || 2x3 Header || || ||
 || J2 || 1x3 Header || || ||
-|| J3 || || || ||
-|| J4 || 161-2625-E || || ||
+|| J3 || 161-2625-E || || ||
 || L1 || 22 uH Inductor || || ||
 || Q1 || 2N2222 || || ||
 || Q2 || || || ||
