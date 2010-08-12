@@ -1,27 +1,27 @@
 #Table of all the parts required.
 
-|| Component || Part Number || Description || Package ||
+|| Component || Part Number || Description || Package || Mouser Part Number ||
 || B1 || || 2 x 1.5V Cell Battery's (AA, AAA, ...) || ||
-|| C1, C4 || || 47uF Electrolytic Capacitor || ||
+|| C1, C4 ||595D476X0010B2T || Tantalum, Solid SMD 47uF 10V 20% || ||
 || C2, C3, C5, C6, C9 || || 0.1uF Capacitor || ||
 || C7, C8 || || 22pF Capacitor || ||
 || DIS1 || HDM16216L-5 || Hantronix 2x16 LCD display with LED back light || ||
 || J1 || 2x3 Header || || ||
 || J2 || 1x3 Header || || ||
 || J3 || 161-2625-E || 2.5mm Stereo Jack || ||
-|| L1 || || 22 uH Inductor || ||
+|| L1 || LQH55DN220M03L || SMD 22 uH 20% || 2220 ||
 || Q1 || 2N2222 || || ||
 || Q2 || ||  || ||
-|| R1, R14, R15 || || 60 Ohm Resistor || ||
-|| R2, R3, R4, R5, R12, R13 || || 1k Ohm Resistor || ||
+|| R1, R14, R15 || CRCW080559R0FKEA || SMD 1/8 Watt 59 Ohm 1% || 0805 ||  ||
+|| R2, R3, R4, R5, R12, R13 || CRCW08051K00FKEA || SMD 1/8 Watt 1k Ohms  1% || 0805 || ||
 || R6 || || 0 Ohm Resistor || ||
-|| R7 || || Leave open || ||
-|| R8 || || 100k Ohm Resistor || ||
-|| R9 || || 2.2M Ohm Resistor || ||
-|| R10 || || 5.6M Ohm Resistor || ||
-|| R11 || || 33k Ohm Resistor || ||
+|| R7 || N/A || Leave Open || ||
+|| R8 || CRCW0805100KFKEA || SMD 1/8 Watt 100k Ohms  1% || 0805 ||  ||
+|| R9 || CRCW08052M20FKEA|| SMD 1/8 Watt 2.2M Ohms 1% || 0805 ||  ||
+|| R10 || CRCW08055M23FKEA || SMD 1/8 Watt 5.62M Ohms 1% || 0805 ||  ||
+|| R11 || CRCW080533K0FKEA || SMD 1/8 Watt 33K Ohms 1% || 0805 ||  ||
 || S1 || JS1300AQ || 5 Button Navigation Switch|| ||
-|| U1 || ATMEGA168 || || ||
-|| U2 || MAX1674 ||  || ||
-|| U3 || LMV358M ||  || ||
-|| U4 || PS2501L-2-A || Dual Optical Isolator || ||
+|| U1 || ATMEGA168 || 8-Bit Micro-controller || ||
+|| U2 || MAX1674 || High-Efficiency, 5V Step-Up DC-DC Converter || ||
+|| U3 || LMV358M || General Purpose, Low Voltage, Rail-to-Rail, Op-Amp || ||
+|| U4 || PS2501L-2-A || General Purpose, Dual Optical Isolator || ||
