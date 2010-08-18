@@ -1,2 +1,3 @@
 [Hardware Hardware Overview]
  * [LCDDisplay LCD Display]
+ * [PartsList Parts List]
