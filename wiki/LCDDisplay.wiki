@@ -6,3 +6,7 @@ The contrast for the Hantronix display is controlled by adjusting the current fl
 Current characteristics for contrast adjustment (V,,L,, pin).
  * I,,L,, Max = 450 uA
  * I,,L,, Visible = 325 uA
+
+== Analysis ==
+
+http://code.google.com/p/shutterpod/source/browse/wiki/Contrast_Control_Circuit.png
