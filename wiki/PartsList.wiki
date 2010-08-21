@@ -4,14 +4,14 @@
 || B1 || || 2 x 1.5V Cell Battery's (AA, AAA, ...) || Custom ||
 || C1, C4 || 595D476X9020D2T|| Tantalum, Series 595D SMD 47uF 10 Volts 10% || SMC D ||
 || C2, C3, C5, C6, C9 || 08055C104J4Z2A || Ceramic, SMD 0.1uF 10 Volts 5% || 0805 ||
-|| C7, C8 || 08055C104JAZ2A || Ceramic, SMD 22pF 10 Volts 5% || 0805 ||
+|| C7, C8 || 08055A180JAT2A || Ceramic, SMD 18pF 10 Volts 5% || 0805 ||
 || DIS1 || HDM16216L-5 || Hantronix 2x16 LCD display with LED back light || Custom ||
 || J1 || 90122-0123 || 2 x 3, 0.1" Header, Dual Row, Right Angle || Custom ||
 || J2 || 90121-0123 || 1 x 3, 0.1" Header, Single Row, Right Angle|| Custom ||
 || J3 || 161-2625-E || 2.5mm Stereo Jack, SMD || Custom ||
 || L1 || LQH55DN220M03L || Power Inductor, SMD 22uH 1.0A 20% || 2220 ||
 || Q1 || 2N2222 || Small Signal NPN Transistor, DC Gain 160 || ||
-|| Q2 || ||  || ||
+|| Q2 || HCM49-16.000MABJ-UT || 16MHz Crystal, 18pF || Custom ||
 || R1, R14, R15 || CRCW080559R0FKEA || Thick Film, SMD 1/8 Watt 60 Ohm 1% || 0805 ||
 || R2, R3, R4, R5, R12, R13 || CRCW08051K00FKEA || Thick Film, SMD 1/8 Watt 1k Ohms  1% || 0805 ||
 || R6 || N/A || Thick Film, SMD 1/8 Watt 0 Ohm 1% || 0805 ||
