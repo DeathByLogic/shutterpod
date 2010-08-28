@@ -10,7 +10,7 @@
 || J2 || 90121-0123 || 1 x 3, 0.1" Header, Single Row, Right Angle|| Custom ||
 || J3 || 161-2625-E || 2.5mm Stereo Jack, SMD || Custom ||
 || L1 || LQH55DN220M03L || Power Inductor, SMD 22uH 1.0A 20% || 2220 ||
-|| Q1 || 2N2222 || Small Signal NPN Transistor, DC Gain 160 || ||
+|| Q1 || BC81725MTF || Gerneral Purpose, Bipolar Small Signal NPN Transistor, DC Gain 160 || SOT-23 ||
 || Q2 || HCM49-16.000MABJ-UT || 16MHz Crystal, 18pF || Custom ||
 || R1, R14, R15 || CRCW080559R0FKEA || Thick Film, SMD 1/8 Watt 60 Ohm 1% || 0805 ||
 || R2, R3, R4, R5, R12, R13 || CRCW08051K00FKEA || Thick Film, SMD 1/8 Watt 1k Ohms  1% || 0805 ||
