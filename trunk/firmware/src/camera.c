@@ -29,25 +29,14 @@
 #include "global.h"
 #include "camera.h"
 
-// Global variables
-unsigned long le_focus_time = 300;		//0;
-unsigned long le_focus_delay = 1500;	//0;
-unsigned long le_shutter_time = 3000;	//0;
-
-unsigned long tl_focus_time = 300;		//0;
-unsigned long tl_focus_delay = 1500;	//0;
-unsigned long tl_shutter_time = 300;	//0;
-unsigned long tl_shutter_delay = 1500;	//0;
-
-bool le_flag = true;
-bool tl_flag = false;
-
 // Configure timer 2 for delays
 void timing_init(void) {
-	// Set camera triggers port direction
-	SETBITS(CAMERA_DIR, SHUTTER_PIN | FOCUS_PIN);
-
+	//
 	// Configure Time/Counter 2 for counting up
+	// with an overflow interupt giving a freq
+	// of ~61 Hz
+	//
+
 	// Clock Select: CLK/1024
 	TCCR2A = 0x00;
 	TCCR2B = 0x07;
@@ -58,19 +47,26 @@ void timing_init(void) {
 
 // Trigger shutter or focus pin
 void set_shutter(bool value) {
+//	SHUTTER_PIN = value?1:0;
+	
+	/*
 	if (value) {
 		SETBITS(CAMERA_PORT, SHUTTER_PIN);
 	} else {
 		CLEARBITS(CAMERA_PORT, SHUTTER_PIN);
 	}
+	*/
 }
 
 void set_focus(bool value) {
+//	FOCUS_PIN = value;
+	/*
 	if (value) {
 		SETBITS(CAMERA_PORT, FOCUS_PIN);
 	} else {
 		CLEARBITS(CAMERA_PORT, FOCUS_PIN);
 	}
+	*/
 }
 
 //
@@ -78,6 +74,14 @@ void set_focus(bool value) {
 // state of the focus and shutter pins.
 //
 ISR (TIMER2_OVF_vect) {
+	// Run the camera state machine
+	//camera_FSM();
+	
+	// Debounce input buttons
+	//debouce_buttons();
+}
+
+void camera_FSM() {
 	// Current and next state for FSM
 	static int current_state = STATE_IDLE;
 	static int next_state;
@@ -113,109 +117,124 @@ ISR (TIMER2_OVF_vect) {
 
 			break;
 		case STATE_LE_FOCUS:
-			if (tick_count >= le_focus_time) {
-				// Turn off focus
-				set_focus(false);
+			if (le_flag) {
+				if (tick_count >= le_focus_time) {
+					// Turn off focus
+					set_focus(false);
 
-				next_state = STATE_LE_FOCUS_DELAY;
+					next_state = STATE_LE_FOCUS_DELAY;
 
-				// Reset tick count for next state
-				tick_count = 0;
+					// Reset tick count for next state
+					tick_count = 0;
+				}
+			} else {
+				next_state = STATE_CANCEL;
 			}
 
 			break;
 		case STATE_LE_FOCUS_DELAY:
-			if (tick_count >= le_focus_delay) {
-				// Turn on shutter
-				set_shutter(true);
+			if (le_flag) {
+				if (tick_count >= le_focus_delay) {
+					// Turn on shutter
+					set_shutter(true);
 
-				next_state = STATE_LE_SHUTTER;
+					next_state = STATE_LE_SHUTTER;
 
-				// Reset tick count for next state
-				tick_count = 0;
+					// Reset tick count for next state
+					tick_count = 0;
+				}
+			} else {
+				next_state = STATE_CANCEL;
 			}
 
 			break;
 		case STATE_LE_SHUTTER:
-			if (tick_count >= le_shutter_time) {
-				// Turn off long exposure flag 
-				le_flag = false;
+			if (le_flag) {
+				if (tick_count >= le_shutter_time) {
+					// Turn off long exposure flag 
+					le_flag = false;
 
-				// Turn off shutter
-				set_shutter(false);
+					// Turn off shutter
+					set_shutter(false);
 
-				next_state = STATE_IDLE;
+					next_state = STATE_IDLE;
 
-				// Reset tick count for next state
-				tick_count = 0;
+					// Reset tick count for next state
+					tick_count = 0;
+				}
+			} else {
+				next_state = STATE_CANCEL;
 			}
 
 			break;
 		case STATE_TL_FOCUS:
-			if (!tl_flag) {
-				//  Turn off focus
-				set_focus(false);
+			if (tl_flag) {
+				if (tick_count >= tl_focus_time) {
+					// Turn off focus
+					set_focus(false);
 
-				next_state = STATE_IDLE;
+					next_state = STATE_TL_FOCUS_DELAY;
 
-				tick_count = 0;
-			} else if (tick_count >= tl_focus_time) {
-				// Turn off focus
-				set_focus(false);
-
-				next_state = STATE_TL_FOCUS_DELAY;
-
-				tick_count = 0;
+					tick_count = 0;
+				}
+			} else {
+				next_state = STATE_CANCEL;
 			}
 
 			break;
 		case STATE_TL_FOCUS_DELAY:
-			if (!tl_flag) {
-				next_state = STATE_IDLE;
+			if (tl_flag) {
+				if (tick_count >= tl_focus_delay) {
+					// Turn on shutter
+					set_shutter(true);
 
-				tick_count = 0;
-			} else if (tick_count >= tl_focus_delay) {
-				// Turn on shutter
-				set_shutter(true);
+					next_state = STATE_TL_SHUTTER;
 
-				next_state = STATE_TL_SHUTTER;
-
-				tick_count = 0;
+					tick_count = 0;
+				}
+			} else {
+				next_state = STATE_CANCEL;
 			}
 
 			break;
 		case STATE_TL_SHUTTER:
-			if (!tl_flag) {
-				// Turn off shutter
-				set_shutter(false);
+			if (tl_flag) {
+				if (tick_count >= tl_shutter_time) {
+					// Turn off shutter
+					set_shutter(false);
 
-				next_state = STATE_IDLE;
+					next_state = STATE_TL_DELAY;
 
-				tick_count = 0;
-			} else if (tick_count >= tl_shutter_time) {
-				// Turn off shutter
-				set_shutter(false);
-
-				next_state = STATE_TL_DELAY;
-
-				tick_count = 0;
+					tick_count = 0;
+				}
+			} else {
+				next_state = STATE_CANCEL;
 			}
 
 			break;
 		case STATE_TL_DELAY:
-			if (!tl_flag) {
-				next_state = STATE_IDLE;
+			if (tl_flag) {
+				if (tick_count >= tl_shutter_delay) {
+					// Turn on focus
+					set_focus(true);
 
-				tick_count = 0;
-			} else if (tick_count >= tl_shutter_delay) {
-				// Turn on focus
-				set_focus(true);
+					next_state = STATE_TL_FOCUS;
 
-				next_state = STATE_TL_FOCUS;
-
-				tick_count = 0;
+					tick_count = 0;
+				}
+			} else {
+				next_state = STATE_CANCEL;
 			}
 			
+			break;
+		case STATE_CANCEL:
+			next_state = STATE_IDLE;
+			
+			set_shutter(false);
+			set_focus(false);
+
+			tick_count = 0;			
+
 			break;
 	}
 	

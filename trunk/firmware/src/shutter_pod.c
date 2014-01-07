@@ -23,35 +23,63 @@
 
 */
 
-// Temp
-extern bool le_flag;
-extern bool tl_flag;
-
+//
 // Includes
+//
+
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "global.h"
 
+#include "global.h"
 #include "lcd.h"
 #include "pwm.h"
 #include "camera.h"
-#include "screen_text.h"
+#include "misc.h"
+#include "menu.h"
+#include "fifo.h"
+//#include "screen_text.h"
 
+//
 // Function constructs
+//
+
 void config_lcd(void);
+void config_io(void);
+void main_menu(int);
+
+//
+// Global variables
+//
+
+// Delay times for camera
+unsigned long le_focus_time = 300;
+unsigned long le_focus_delay = 1500;
+unsigned long le_shutter_time = 3000;
+
+unsigned long tl_focus_time = 300;
+unsigned long tl_focus_delay = 1500;
+unsigned long tl_shutter_time = 300;
+unsigned long tl_shutter_delay = 1500;
+
+// Flags for enableing LE or TL in FSM
+bool le_flag = false;
+bool tl_flag = false;
 
 // Global button variables
 bool go_button;
 unsigned int go_button_counter;
 
-// Global variables 
+// Global objects
 lcd disp(LCD_2_LINE | LCD_5_BY_7);
+fifo button_events;
+
+//
+// Start of program
+//
 
 int main (void) {
-	DDRB = 0x30;
-	
-	// Configure the LCD
-	config_lcd();
+	// Configure the io port directions
+	config_io();
 
 	// Configure the PWM
 	pwm_init();
@@ -59,28 +87,58 @@ int main (void) {
 	// Configure the main timer
 	timing_init();
 
+	// Give time for LCD to boot
+	delay_ms(250);
+
+	// Configure the LCD
+	config_lcd();
+
+	// Print splash screen
+	display_splash();
+
+	// Wait for 2 sec
+	delay_ms(2000);
+
+	/*button_events.push(BUTTON_LEFT_EVENT);
+	button_events.push(BUTTON_LEFT_EVENT);
+	button_events.push(BUTTON_LEFT_EVENT);
+	button_events.push(BUTTON_LEFT_EVENT);
+	button_events.push(BUTTON_SELECT_EVENT);
+	button_events.push(BUTTON_LEFT_EVENT);
+	button_events.push(BUTTON_LEFT_EVENT);
+	button_events.push(BUTTON_SELECT_EVENT);*/
+
 	// Enable global interupts
 	sei();
 
-	// Print splash screen
-	disp.print(MSG_SPLASH_1, 16);
-	disp.set_display_address(LCD_LINE_2);
-	disp.print(MSG_SPLASH_2, 16);
-	
-	// Wait for 2 sec
-
 	// Goto main menu
-
-	while(true) {
-		//le_flag = false;
-		//tl_flag = true;		
-		//focus(true);
-		asm("NOP");
-		//focus(false);
-		asm("NOP");
+	while (true) {
+		menu_main();
 	}
 }
 
+// Setup the i/o ports directions
+void config_io(void) {
+	// Enable pullups
+	MCUCR &= 0x00;
+
+	// Enable pullups on button inputs
+	SETBITS(BUTTON_PORT, BUTTON_MASK);
+
+	// Set the button pins as input
+	CLEARBITS(BUTTON_DIR, BUTTON_MASK);
+
+	// Configure PWM ports as output
+	SETBITS(LCD_PWM_DIR, LCD_PWM_MASK);
+	
+	// Set camera triggers port direction
+	SETBITS(CAMERA_DIR, CAMERA_MASK);
+
+	// Set low battery pin as input
+	CLEARBITS(LOW_BATTERY_DIR, LOW_BATTERY_MASK);
+}
+
+// Setup the LCD display
 void config_lcd(void) {
 	// Turn the display on
 	disp.display_control(LCD_ON | LCD_UNDERLINE_OFF | LCD_CURSOR_BLINK_ON);

@@ -23,11 +23,6 @@
 
 */
 
-// Pins for PWM output
-#define LCD_BACKLIGHT_PIN	0x20
-#define LCD_CONTRAST_PIN	0x40
-#define LCD_PWM_DIR			DDRD
-
 // function constructs
 void pwm_init(void);
 void set_backlight_dc(void);

@@ -37,7 +37,7 @@ lcd::lcd(unsigned int flags) {
 	flags |= LCD_8_BIT_INTERFACE;
 #endif
 
-	send_command(flags);
+	send_command(LCD_FUNCTION_SET | flags);
 }
 
 //
@@ -117,6 +117,14 @@ void lcd::print(unsigned int *array, unsigned int length) {
 	for(unsigned int i = 0; i < length; i++) {
 		send_data(array[i]);
 	}
+}
+
+void lcd::print(char value) {
+	send_data(value);
+}
+
+void lcd::print(int value) {
+	send_data(value);
 }
 
 // Send functions

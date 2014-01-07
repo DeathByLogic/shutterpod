@@ -25,13 +25,15 @@
 
 class debounce {
 	private:
-		int cb_flag;
+		int cb_short_flag;
+		int cb_long_flag;
 		void (*cb_function)(int flag, bool value);
 
-		int counter;
+		unsigned long debounce_counter;
+		unsigned long repeat_counter;
 		bool current_value;
 
 	public:
-		debounce(void (*call_back)(int flag, bool value), int flag);
+		debounce(void (*call_back)(int flag, bool value), int short_flag, int long_flag);
 		bool update(bool value);
 };

@@ -30,3 +30,60 @@
 // constants definitions
 #define true	1
 #define false	0
+
+//
+// I/O Ports
+//
+
+// Pins for PWM output
+#define LCD_PWM_DIR			DDRD
+#define LCD_PWM_MASK		0x60
+
+// Ports for camera triggers
+#define	CAMERA_PORT			PORTB
+#define	CAMERA_DIR			DDRB
+#define	CAMERA_MASK			0x30
+
+#define	SHUTTER_PIN			PORTB5
+#define FOCUS_PIN			PORTB4
+
+// Low battery input
+#define LOW_BATTERY_PORT	PORTD
+#define LOW_BATTERY_DIR		DDRD
+#define LOW_BATTERY_MASK	0x80
+
+#define LOW_BATTERY_PIN		PORTD7
+
+// Button input
+#define BUTTON_PORT			PORTD
+#define BUTTON_PIN			PIND
+#define BUTTON_DIR			DDRD
+#define BUTTON_MASK			0x1F
+
+#define BUTTON_UP			PIND0
+#define BUTTON_RIGHT		PIND1
+#define BUTTON_SELECT		PIND2
+#define BUTTON_LEFT			PIND3
+#define BUTTON_DOWN			PIND4
+
+//
+// EVENTS
+//
+
+// Button events
+enum BUTTON_EVENTS {
+	BUTTON_UP_SHORT,
+	BUTTON_UP_LONG,
+
+	BUTTON_RIGHT_SHORT,
+	BUTTON_RIGHT_LONG,
+
+	BUTTON_SELECT_SHORT,
+	BUTTON_SELECT_LONG,
+
+	BUTTON_LEFT_SHORT,
+	BUTTON_LEFT_LONG,
+
+	BUTTON_DOWN_SHORT,
+	BUTTON_DOWN_LONG,
+};

@@ -29,26 +29,26 @@
 #include "global.h"
 #include "pwm.h"
 #include "lcd.h"
+#include "fifo.h"
+#include "debounce.h"
+
+//Function Constructors
+void call_back(int flag, bool value);
 
 // Global Variables
-bool button_up		= false;
-bool button_down	= false;
-bool button_left	= false;
-bool button_right	= false;
-bool button_go		= false;
+extern fifo button_events;
+
+debounce btn_db_up(&call_back, BUTTON_UP_SHORT, BUTTON_UP_LONG);
+debounce btn_db_down(&call_back, BUTTON_DOWN_SHORT, BUTTON_DOWN_LONG);
+debounce btn_db_left(&call_back, BUTTON_LEFT_SHORT, BUTTON_LEFT_LONG);
+debounce btn_db_right(&call_back, BUTTON_RIGHT_SHORT, BUTTON_RIGHT_LONG);
+debounce btn_db_select(&call_back, BUTTON_SELECT_SHORT, BUTTON_SELECT_LONG);
 
 // Configure the PWM output for the backlight, contrast and button debouncing.
 void pwm_init(void) {
-	//
-	// Configure timer 0 and the associated PWM
-	//
-
-	// Configure PWM ports as output
-	SETBITS(LCD_PWM_DIR, LCD_BACKLIGHT_PIN | LCD_CONTRAST_PIN);
-	
-	// Configure Duty Cycle for 0%
-	OCR0A = 0x40;
-	OCR0B = 0x80;	
+	// Configure Duty Cycle for 50%
+	OCR0A = 0xFF;//0x80;
+	OCR0B = 0x80;//0x80;	
 	
 	// Configure Time/Counter 0 for PWM
 	// Compare A & B: Fast PMW mode
@@ -59,10 +59,6 @@ void pwm_init(void) {
 	// Clock Select: CLK/8
 	TCCR0A = 0xA3;
 	TCCR0B = 0x02;
-	
-	//
-	// Configure interupt on counter overflow
-	//
 
 	// Enable timer 0 overflow interupt
 	TIMSK0 |= 0x01;
@@ -70,30 +66,25 @@ void pwm_init(void) {
 
 // Set the duty cycle for the backlight
 void set_backlight_dc(int value) {
-	OCR0A = value;
+	OCR0B = value;
 }
 
 // Set the duty cycle for the contract
 void set_contrast_dc(int value) {
-	OCR0B = value;
+	OCR0A = value;
 }
 
 // General system timing interupt
 ISR(TIMER0_OVF_vect) {
-	// Debounce button inputs 
-	
+	btn_db_up.update((bool)(BUTTON_PIN & (1 << BUTTON_UP)));
+	btn_db_down.update((bool)(BUTTON_PIN & (1 << BUTTON_DOWN)));
+	btn_db_left.update((bool)(BUTTON_PIN & (1 << BUTTON_LEFT)));
+	btn_db_right.update((bool)(BUTTON_PIN & (1 << BUTTON_RIGHT)));
+	btn_db_select.update((bool)(BUTTON_PIN & (1 << BUTTON_SELECT)));
 }
 
-void input_debounce(volatile uint8_t *Pin, bool *Register, unsigned int *Counter) {
-	if (*Pin && (*Counter < 0xFF)) {
-		*Counter++;
-	} else if (!*Pin && (*Counter > 0x00)) {
-		*Counter--;
-	}
-
-	if (!*Register && (*Counter == 0xFF)) {
-		*Register = true;
-	} else if (Register && (*Counter == 0x00)) {
-		*Register = false;
+void call_back(int flag, bool value) {
+	if (value == false) {
+		button_events.push(flag);
 	}
 }

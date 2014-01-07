@@ -26,30 +26,48 @@
 // Includes
 #include "debounce.h"
 
-// Defines
-#define DEBOUNCE_COUNT	78
-
-debounce::debounce(void (*call_back)(int flag, bool value), int flag) {
-	cb_flag = flag;
+debounce::debounce(void (*call_back)(int flag, bool value), int short_flag, int long_flag) {
+	cb_short_flag = short_flag;
+	cb_long_flag = long_flag;
 	cb_function = call_back;
 }
 
 bool debounce::update(bool value) {
+	const unsigned long DEBOUNCE_COUNT = 78;
+	const unsigned long REPEAT_COUNT   = 4096;
+
 	// Debounce button inputs
 	if (current_value == value) {
-		// Clear counter
-		counter = 0;
+		// Clear debounce counter
+		debounce_counter = 0;
+
+		
+		repeat_counter++;
+
+		if ((repeat_counter % REPEAT_COUNT) == 0) {
+			if (repeat_counter > (REPEAT_COUNT * 8)) {
+				// Call callback function w/ long flag
+				cb_function(cb_long_flag, current_value);
+			} else {
+				// Call callback function w/ short flag
+				cb_function(cb_short_flag, current_value);
+			}
+		}
+		
 	} else {
+		// Clear repeat Counter
+		repeat_counter = 0;
+
 		// Increment counter
-		counter++;
+		debounce_counter++;
 		
 		// Check if debounce period has passed
-		if (counter > DEBOUNCE_COUNT) {
+		if (debounce_counter > DEBOUNCE_COUNT) {
 			// Update current value
 			current_value = value;
 
 			// Call callback function
-			cb_function(cb_flag, current_value);
+			cb_function(cb_short_flag, current_value);
 		}
 	}
 
