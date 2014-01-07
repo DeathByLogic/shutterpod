@@ -39,9 +39,9 @@
 #define	EN_PIN			0x04
 
 // Pins and port for LCD data
-#define DATA_WRITE_PORT	PORTD
-#define DATA_READ_PORT	PIND
-#define	DATA_DIR		DDRD
+#define DATA_WRITE_PORT	PORTC
+#define DATA_READ_PORT	PINC
+#define	DATA_DIR		DDRC
 
 #if BUS_WIDTH == 4
 	#define DATA_MASK	0x0F
@@ -122,6 +122,8 @@ class lcd {
 		void cursor_blink(bool value);
 		
 		// Print text string to LCD
+		void print(char value);
+		void print(int value);
 		void print(char *string, unsigned int length);
 		void print(unsigned int *array, unsigned int length);
 		

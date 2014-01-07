@@ -28,7 +28,7 @@ struct node {
 
   int value;
 };
- 
+
 class fifo {
 	private:
 		// Location of first and last nodes

@@ -23,7 +23,7 @@
 
 */
 
-// State deffinitions
+// State definitions
 #define STATE_IDLE				0x00
 
 #define STATE_LE_FOCUS			0x01
@@ -35,14 +35,23 @@
 #define STATE_TL_SHUTTER		0x30
 #define	STATE_TL_DELAY			0x40
 
-// Ports for camera triggers
-#define	CAMERA_PORT				PORTB
-#define	CAMERA_DIR				DDRB
-
-#define	SHUTTER_PIN				0x20
-#define FOCUS_PIN				0x10
+#define STATE_CANCEL			0xFF
 
 // Function constructs 
 void timing_init(void);
 void shutter(bool);
 void focus(bool);
+
+// External global variables
+extern bool le_flag;
+extern bool tl_flag;
+
+// Delay times for camera
+extern unsigned long le_focus_time;
+extern unsigned long le_focus_delay;
+extern unsigned long le_shutter_time;
+
+extern unsigned long tl_focus_time;
+extern unsigned long tl_focus_delay;
+extern unsigned long tl_shutter_time;
+extern unsigned long tl_shutter_delay;
