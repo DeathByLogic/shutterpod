@@ -23,55 +23,40 @@
 
 */
 
-//
-// Menu State Declorations
-//
+#ifndef _MENU_H
+#define _MENU_H
 
-enum {
+// Menu State Declorations
+enum MENU_STATES {
 	MENU_MAIN_SETTINGS,
 	MENU_MAIN_LONGEXP,
 	MENU_MAIN_TIMELSP,
 	MENU_MAIN_MANUAL,
+	MENU_MAIN_ABOUT,
+
 	MENU_SETTINGS_CAMERA,
 	MENU_SETTINGS_DISPLAY,
-	MENU_LONGEXP,
-	MENU_TIMELSP,
-	MENU_MANUAL
+	MENU_SETTINGS_RETURN,
+
+	MENU_LONGEXP_START_CANCEL,
+	MENU_LONGEXP_SHUTTER_TIME,
+	MENU_LONGEXP_RETURN,
+
+	MENU_TIMELSP_START_STOP,
+	MENU_TIMELSP_FREQ,
+	MENU_TIMELSP_DURATION,
+	MENU_TIMELSP_RETURN,
+
+	MENU_MANUAL_TRIGGER,
+	MENU_MANUAL_RETURN
 };
-
-/*
-// Main Menu
-#define MENU_MAIN			0x00
-
-#define MENU_MAIN_SETTINGS	0x01
-#define MENU_MAIN_LONGEXP	0x02
-#define MENU_MAIN_TIMELSP	0x04
-#define MENU_MAIN_MANUAL	0x08
-
-// Settings Menu
-#define MENU_SETTINGS		0x10
-
-#define MENU_SETTINGS_CAMERA	0x11
-#define MENU_SETTINGS_DISPLAY	0x12
-#define MENU_SETTINGS_RETURN	0x14
-
-// Long Exposure Menu
-#define MENU_LONGEXP		0x20
-
-// Time Lapse Menu
-#define MENU_TIMELSP		0x40
-
-// Manual Mode Menu
-#define MENU_MANUAL			0x80*/
 
 // Function constructs
 void display_splash(void);
+void display_menu(MENU_STATES);
 void menu_main(void);
 
-int menu_main_longexp(int button_event);
-int menu_main_timelsp(int button_event);
-int menu_main_manual(int button_event);
-int menu_main_settings(int button_event);
+unsigned int get_time(unsigned int);
 
 void print_menu(char *, char *);
 
@@ -91,3 +76,5 @@ class menu_type {
 }*/
 
 // Misc
+
+#endif

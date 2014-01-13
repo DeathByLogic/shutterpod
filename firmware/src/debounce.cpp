@@ -41,7 +41,6 @@ bool debounce::update(bool value) {
 		// Clear debounce counter
 		debounce_counter = 0;
 
-		
 		repeat_counter++;
 
 		if ((repeat_counter % REPEAT_COUNT) == 0) {

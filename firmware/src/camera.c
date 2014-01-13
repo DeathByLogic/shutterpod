@@ -26,8 +26,22 @@
 // Includes
 #include <avr/io.h>
 #include <avr/interrupt.h>
+
 #include "global.h"
 #include "camera.h"
+
+// Global Variables
+CAMERA_MODES camera_mode = MODE_IDLE;
+
+// Delay times for camera
+unsigned long le_focus_time = 18;
+unsigned long le_focus_delay = 90;
+unsigned long le_shutter_time = 180;
+
+unsigned long tl_focus_time = 18;
+unsigned long tl_focus_delay = 90;
+unsigned long tl_shutter_time = 18;
+unsigned long tl_shutter_delay = 90;
 
 // Configure timer 2 for delays
 void timing_init(void) {
@@ -49,24 +63,21 @@ void timing_init(void) {
 void set_shutter(bool value) {
 //	SHUTTER_PIN = value?1:0;
 	
-	/*
 	if (value) {
-		SETBITS(CAMERA_PORT, SHUTTER_PIN);
+		SETBITS(CAMERA_PORT, 1<<5);
 	} else {
-		CLEARBITS(CAMERA_PORT, SHUTTER_PIN);
+		CLEARBITS(CAMERA_PORT, 1<<5);
 	}
-	*/
 }
 
 void set_focus(bool value) {
 //	FOCUS_PIN = value;
-	/*
+	
 	if (value) {
-		SETBITS(CAMERA_PORT, FOCUS_PIN);
+		SETBITS(CAMERA_PORT, 1<<4);
 	} else {
-		CLEARBITS(CAMERA_PORT, FOCUS_PIN);
+		CLEARBITS(CAMERA_PORT, 1<<4);
 	}
-	*/
 }
 
 //
@@ -75,41 +86,38 @@ void set_focus(bool value) {
 //
 ISR (TIMER2_OVF_vect) {
 	// Run the camera state machine
-	//camera_FSM();
+	camera_FSM();
 	
 	// Debounce input buttons
 	//debouce_buttons();
 }
 
 void camera_FSM() {
-	// Current and next state for FSM
-	static int current_state = STATE_IDLE;
-	static int next_state;
-
+	static CAMERA_STATES camera_state = STATE_IDLE;
 	static unsigned long tick_count;
 
 	// Increment tick count
-	if (current_state != STATE_IDLE)
+	if (camera_state != STATE_IDLE)
 		tick_count++;
 
 	// Check current state and see what to do
-	switch (current_state) {
+	switch (camera_state) {
 		case STATE_IDLE:
-			if (le_flag) {
+			if (camera_mode == MODE_LONGEXP) {
 				// Turn on focus
 				set_focus(true);
 
 				// Start long exposure loop
-				next_state = STATE_LE_FOCUS;
+				camera_state = STATE_LE_FOCUS;
 
 				// Reset tick count for next state
 				tick_count = 0;
-			} else if (tl_flag) {
+			} else if (camera_mode == MODE_TIMELAPSE) {
 				// Turn on focus
 				set_focus(true);
 
 				// Start time lapse loop
-				next_state = STATE_TL_FOCUS;
+				camera_state = STATE_TL_FOCUS;
 
 				// Reset tick count for next state
 				tick_count = 0;
@@ -117,118 +125,118 @@ void camera_FSM() {
 
 			break;
 		case STATE_LE_FOCUS:
-			if (le_flag) {
+			if (camera_mode == MODE_LONGEXP) {
 				if (tick_count >= le_focus_time) {
 					// Turn off focus
 					set_focus(false);
 
-					next_state = STATE_LE_FOCUS_DELAY;
+					camera_state = STATE_LE_FOCUS_DELAY;
 
 					// Reset tick count for next state
 					tick_count = 0;
 				}
 			} else {
-				next_state = STATE_CANCEL;
+				camera_state = STATE_CANCEL;
 			}
 
 			break;
 		case STATE_LE_FOCUS_DELAY:
-			if (le_flag) {
+			if (camera_mode == MODE_LONGEXP) {
 				if (tick_count >= le_focus_delay) {
 					// Turn on shutter
 					set_shutter(true);
 
-					next_state = STATE_LE_SHUTTER;
+					camera_state = STATE_LE_SHUTTER;
 
 					// Reset tick count for next state
 					tick_count = 0;
 				}
 			} else {
-				next_state = STATE_CANCEL;
+				camera_state = STATE_CANCEL;
 			}
 
 			break;
 		case STATE_LE_SHUTTER:
-			if (le_flag) {
+			if (camera_mode == MODE_LONGEXP) {
 				if (tick_count >= le_shutter_time) {
 					// Turn off long exposure flag 
-					le_flag = false;
+					camera_mode = MODE_IDLE;
 
 					// Turn off shutter
 					set_shutter(false);
 
-					next_state = STATE_IDLE;
+					camera_state = STATE_IDLE;
 
 					// Reset tick count for next state
 					tick_count = 0;
 				}
 			} else {
-				next_state = STATE_CANCEL;
+				camera_state = STATE_CANCEL;
 			}
 
 			break;
 		case STATE_TL_FOCUS:
-			if (tl_flag) {
+			if (camera_mode == MODE_TIMELAPSE) {
 				if (tick_count >= tl_focus_time) {
 					// Turn off focus
 					set_focus(false);
 
-					next_state = STATE_TL_FOCUS_DELAY;
+					camera_state = STATE_TL_FOCUS_DELAY;
 
 					tick_count = 0;
 				}
 			} else {
-				next_state = STATE_CANCEL;
+				camera_state = STATE_CANCEL;
 			}
 
 			break;
 		case STATE_TL_FOCUS_DELAY:
-			if (tl_flag) {
+			if (camera_mode == MODE_TIMELAPSE) {
 				if (tick_count >= tl_focus_delay) {
 					// Turn on shutter
 					set_shutter(true);
 
-					next_state = STATE_TL_SHUTTER;
+					camera_state = STATE_TL_SHUTTER;
 
 					tick_count = 0;
 				}
 			} else {
-				next_state = STATE_CANCEL;
+				camera_state = STATE_CANCEL;
 			}
 
 			break;
 		case STATE_TL_SHUTTER:
-			if (tl_flag) {
+			if (camera_mode == MODE_TIMELAPSE) {
 				if (tick_count >= tl_shutter_time) {
 					// Turn off shutter
 					set_shutter(false);
 
-					next_state = STATE_TL_DELAY;
+					camera_state = STATE_TL_DELAY;
 
 					tick_count = 0;
 				}
 			} else {
-				next_state = STATE_CANCEL;
+				camera_state = STATE_CANCEL;
 			}
 
 			break;
 		case STATE_TL_DELAY:
-			if (tl_flag) {
+			if (camera_mode == MODE_TIMELAPSE) {
 				if (tick_count >= tl_shutter_delay) {
 					// Turn on focus
 					set_focus(true);
 
-					next_state = STATE_TL_FOCUS;
+					camera_state = STATE_TL_FOCUS;
 
 					tick_count = 0;
 				}
 			} else {
-				next_state = STATE_CANCEL;
+				camera_state = STATE_CANCEL;
 			}
 			
 			break;
 		case STATE_CANCEL:
-			next_state = STATE_IDLE;
+			camera_state = STATE_IDLE;
 			
 			set_shutter(false);
 			set_focus(false);
@@ -237,7 +245,4 @@ void camera_FSM() {
 
 			break;
 	}
-	
-	// Go to the next state
-	current_state = next_state;
 }

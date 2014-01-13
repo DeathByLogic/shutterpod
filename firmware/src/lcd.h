@@ -23,6 +23,9 @@
 
 */
 
+#ifndef _LCD_H
+#define _LCD_H
+
 // Macros for LCD commands
 #define SETBITS(x, y)	x |= y
 #define CLEARBITS(x, y)	x &= ~y
@@ -131,3 +134,5 @@ class lcd {
 		void send_command(unsigned int parameters);
 		void send_data(unsigned int value);
 };
+
+#endif

@@ -1,7 +1,7 @@
-//
-// Macros
-//
+#ifndef _MISC_H
+#define _MISC_H
 
+// Macros
 #define SETBITS(X, Y)				X |= Y
 #define CLEARBITS(X, Y)				X &= ~Y
 
@@ -12,6 +12,7 @@
 #define CONSTRAIN_MAX(VALUE, MAX)	(VALUE < MAX)?VALUE:MAX
 #define CONSTRAIN(VALUE, MIN, MAX)	CONSTRAIN_MIN(CONSTRAIN_MAX(VALUE, MAX), MIN)
 
-#include <util/delay.h>
-
+// Function constructs
 void delay_ms(unsigned int);
+
+#endif

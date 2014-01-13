@@ -23,6 +23,9 @@
 
 */
 
+#ifndef _FIFO_H
+#define _FIFO_H
+
 struct node {
   struct node *next;
 
@@ -53,3 +56,5 @@ class fifo {
 		bool empty(void);
 		bool full(void);
 };
+
+#endif

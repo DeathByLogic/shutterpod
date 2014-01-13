@@ -70,9 +70,15 @@ int fifo::pop(void) {
 
 // Push a new value onto FIFO
 void fifo::push(int value) {
+	node *new_node;
+
 	if (!is_full) {
-		// Create a new node
-		node *new_node = last->next;
+		if (is_empty) {
+			new_node = last;
+		} else {
+			// Create a new node
+			new_node = last->next;
+		}
 
 		// Store the value in the new node
 		new_node->value = value;

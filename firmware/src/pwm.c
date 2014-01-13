@@ -26,6 +26,7 @@
 // Includes
 #include <avr/io.h>
 #include <avr/interrupt.h>
+#include "misc.h"
 #include "global.h"
 #include "pwm.h"
 #include "lcd.h"

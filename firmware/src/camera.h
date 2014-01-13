@@ -22,29 +22,41 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
+#ifndef _CAMERA_H
+#define _CAMERA_H
 
 // State definitions
-#define STATE_IDLE				0x00
+enum CAMERA_MODES {
+	MODE_IDLE,
+	MODE_LONGEXP,
+	MODE_TIMELAPSE,
+	MODE_MANUAL
+};
 
-#define STATE_LE_FOCUS			0x01
-#define STATE_LE_FOCUS_DELAY	0x02
-#define STATE_LE_SHUTTER		0x03
+enum CAMERA_STATES {
+	STATE_IDLE,
+	STATE_LE_FOCUS,
+	STATE_LE_FOCUS_DELAY,
+	STATE_LE_SHUTTER,
+	STATE_TL_FOCUS,
+	STATE_TL_FOCUS_DELAY,
+	STATE_TL_SHUTTER,
+	STATE_TL_DELAY,
+	STATE_CANCEL
+};
 
-#define STATE_TL_FOCUS			0x10
-#define STATE_TL_FOCUS_DELAY	0x20
-#define STATE_TL_SHUTTER		0x30
-#define	STATE_TL_DELAY			0x40
+// Function constructs
+void set_focus(bool);
+void set_shutter(bool);
 
-#define STATE_CANCEL			0xFF
-
-// Function constructs 
 void timing_init(void);
 void shutter(bool);
 void focus(bool);
 
+void camera_FSM();
+
 // External global variables
-extern bool le_flag;
-extern bool tl_flag;
+extern CAMERA_MODES camera_mode;
 
 // Delay times for camera
 extern unsigned long le_focus_time;
@@ -55,3 +67,5 @@ extern unsigned long tl_focus_time;
 extern unsigned long tl_focus_delay;
 extern unsigned long tl_shutter_time;
 extern unsigned long tl_shutter_delay;
+
+#endif

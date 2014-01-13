@@ -23,6 +23,9 @@
 
 */
 
+#ifndef _PWM_H
+#define _PWM_H
+
 // function constructs
 void pwm_init(void);
 void set_backlight_dc(void);
@@ -31,3 +34,5 @@ void input_debounce(volatile uint8_t *, bool *, unsigned int *);
 
 extern bool go_button;
 extern unsigned int go_button_counter;
+
+#endif
