@@ -23,6 +23,9 @@
 
 */
 
+#ifndef _DEBOUNCE_H
+#define _DEBOUNCE_H
+
 class debounce {
 	private:
 		int cb_short_flag;
@@ -37,3 +40,5 @@ class debounce {
 		debounce(void (*call_back)(int flag, bool value), int short_flag, int long_flag);
 		bool update(bool value);
 };
+
+#endif

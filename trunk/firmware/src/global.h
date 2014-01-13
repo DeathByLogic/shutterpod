@@ -23,6 +23,9 @@
 
 */
 
+#ifndef _GLOBAL_H
+#define _GLOBAL_H
+
 // Common Macros for setting & clearing bits
 #define SETBITS(x, y)	x |= y
 #define CLEARBITS(x, y)	x &= ~y
@@ -87,3 +90,5 @@ enum BUTTON_EVENTS {
 	BUTTON_DOWN_SHORT,
 	BUTTON_DOWN_LONG,
 };
+
+#endif

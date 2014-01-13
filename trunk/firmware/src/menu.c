@@ -28,7 +28,10 @@
 #include "fifo.h"
 #include "menu.h"
 #include "misc.h"
+#include "camera.h"
 #include "screen_text.h"
+
+#include <avr/io.h>
 
 // External variables
 extern lcd disp;
@@ -54,81 +57,435 @@ menu_type::menu_type(char * menu_text, char * item_text, menu_type * up, menu_ty
 	n_down = down;
 	n_left = left;
 	n_right = right;
-};*/
+};
+*/
 
 //
-// Main Menu FSM
+// System Menu FSM
 //
 
 void menu_main(void) {
-	int current_state = MENU_MAIN_SETTINGS;
+	// Current Menu
+	static MENU_STATES menu_state = MENU_MAIN_SETTINGS;
 
-	int button_event;
+	// Pull next button event off stack
+	int button_event = button_events.pop();
 
-	print_menu(MSG_MAIN_MENU, MSG_SETTINGS_OPT);
-
-	while (true) {
-		// Pull next button event off stack
-		button_event = button_events.pop();
-
-		switch (current_state) {
+	if (button_event > 0) {
+		switch (menu_state) {
+			//
+			// Main Menu
+			//
 			case MENU_MAIN_SETTINGS:
-				current_state = menu_main_settings(button_event);				
+				switch (button_event) {
+					case BUTTON_RIGHT_SHORT:
+					case BUTTON_RIGHT_LONG:
+						menu_state = MENU_MAIN_LONGEXP;
+		
+						break;
+					case BUTTON_SELECT_SHORT:
+					case BUTTON_SELECT_LONG:
+						menu_state = MENU_SETTINGS_CAMERA;
+						
+						break;
+				}
 
 				break;
 			case MENU_MAIN_LONGEXP:
-				current_state = menu_main_longexp(button_event);
+				switch (button_event) {
+					case BUTTON_LEFT_SHORT:
+					case BUTTON_LEFT_LONG:
+						menu_state = MENU_MAIN_SETTINGS;
+			
+						break;
+					case BUTTON_RIGHT_SHORT:
+					case BUTTON_RIGHT_LONG:
+						menu_state = MENU_MAIN_TIMELSP;
+		
+						break;
+					case BUTTON_SELECT_SHORT:
+					case BUTTON_SELECT_LONG:
+						menu_state = MENU_LONGEXP_START_CANCEL;
+						break;
+				}
 
 				break;
 			case MENU_MAIN_TIMELSP:
-				current_state = menu_main_timelsp(button_event);
+				switch (button_event) {
+					case BUTTON_LEFT_SHORT:
+					case BUTTON_LEFT_LONG:
+						menu_state = MENU_MAIN_LONGEXP;
+			
+						break;
+					case BUTTON_RIGHT_SHORT:
+					case BUTTON_RIGHT_LONG:
+						menu_state = MENU_MAIN_MANUAL;
+		
+						break;
+					case BUTTON_SELECT_SHORT:
+					case BUTTON_SELECT_LONG:
+						menu_state = MENU_TIMELSP_START_STOP;
+						
+						break;
+				}
 
 				break;
 			case MENU_MAIN_MANUAL:
-				current_state = menu_main_manual(button_event);
+				switch (button_event) {
+					case BUTTON_LEFT_SHORT:
+					case BUTTON_LEFT_LONG:
+						menu_state = MENU_MAIN_TIMELSP;
+			
+						break;
+					case BUTTON_RIGHT_SHORT:
+					case BUTTON_RIGHT_LONG:
+						menu_state = MENU_MAIN_ABOUT;
+		
+						break;
+					case BUTTON_SELECT_SHORT:
+					case BUTTON_SELECT_LONG:
+						menu_state = MENU_MANUAL_TRIGGER;
+						
+						break;
+				}
+
+				break;
+			case MENU_MAIN_ABOUT:
+				switch (button_event) {
+					case BUTTON_LEFT_SHORT:
+					case BUTTON_LEFT_LONG:
+						menu_state = MENU_MAIN_MANUAL;
+			
+						break;
+					case BUTTON_SELECT_SHORT:
+					case BUTTON_SELECT_LONG:
+						//menu_state = ;
+						
+						break;
+				}
+
+				break;
+			//
+			// Settings Menu
+			//
+			case MENU_SETTINGS_CAMERA:
+				switch (button_event) {
+					case BUTTON_RIGHT_SHORT:
+					case BUTTON_RIGHT_LONG:
+						menu_state = MENU_SETTINGS_DISPLAY;
+		
+						break;
+					case BUTTON_SELECT_SHORT:
+					case BUTTON_SELECT_LONG:
+						//menu_state = ;
+						
+						break;
+				}
+
+				break;
+			case MENU_SETTINGS_DISPLAY:
+				switch (button_event) {
+					case BUTTON_LEFT_SHORT:
+					case BUTTON_LEFT_LONG:
+						menu_state = MENU_SETTINGS_CAMERA;
+			
+						break;
+					case BUTTON_RIGHT_SHORT:
+					case BUTTON_RIGHT_LONG:
+						menu_state = MENU_SETTINGS_RETURN;
+		
+						break;
+					case BUTTON_SELECT_SHORT:
+					case BUTTON_SELECT_LONG:
+						//menu_state = ;
+						
+						break;
+				}
+
+				break;
+			case MENU_SETTINGS_RETURN:
+				switch (button_event) {
+					case BUTTON_LEFT_SHORT:
+					case BUTTON_LEFT_LONG:
+						menu_state = MENU_SETTINGS_DISPLAY;
+			
+						break;
+					case BUTTON_SELECT_SHORT:
+					case BUTTON_SELECT_LONG:
+						menu_state = MENU_MAIN_SETTINGS;
+						
+						break;
+				}
+
+				break;
+			//
+			// Long Exposure Menu
+			//
+			case MENU_LONGEXP_START_CANCEL:
+				switch (button_event) {
+					case BUTTON_RIGHT_SHORT:
+					case BUTTON_RIGHT_LONG:
+						menu_state = MENU_LONGEXP_SHUTTER_TIME;
+			
+						break;
+					case BUTTON_SELECT_SHORT:
+					case BUTTON_SELECT_LONG:
+						if (camera_mode == MODE_LONGEXP) {
+							camera_mode = MODE_IDLE;
+						} else {
+							camera_mode = MODE_LONGEXP;
+						}
+						
+						
+						break;
+				}
+
+				break;
+			case MENU_LONGEXP_SHUTTER_TIME:
+				switch (button_event) {
+					case BUTTON_LEFT_SHORT:
+					case BUTTON_LEFT_LONG:
+						menu_state = MENU_LONGEXP_START_CANCEL;
+			
+						break;
+					case BUTTON_RIGHT_SHORT:
+					case BUTTON_RIGHT_LONG:
+						menu_state = MENU_LONGEXP_RETURN;
+		
+						break;
+					case BUTTON_SELECT_SHORT:
+					case BUTTON_SELECT_LONG:
+						//menu_state = ;
+						
+						break;
+				}
+
+				break;
+			case MENU_LONGEXP_RETURN:
+				switch (button_event) {
+					case BUTTON_LEFT_SHORT:
+					case BUTTON_LEFT_LONG:
+						menu_state = MENU_LONGEXP_SHUTTER_TIME;
+		
+						break;
+					case BUTTON_SELECT_SHORT:
+					case BUTTON_SELECT_LONG:
+						menu_state = MENU_MAIN_LONGEXP;
+						
+						break;
+				}
+
+				break;
+			//
+			// Time Lapse Menu
+			//
+			case MENU_TIMELSP_START_STOP:
+				switch (button_event) {
+					case BUTTON_RIGHT_SHORT:
+					case BUTTON_RIGHT_LONG:
+						menu_state = MENU_TIMELSP_FREQ;
+		
+						break;
+					case BUTTON_SELECT_SHORT:
+					case BUTTON_SELECT_LONG:
+						if (camera_mode == MODE_TIMELAPSE) {
+							camera_mode = MODE_IDLE;
+						} else {
+							camera_mode = MODE_TIMELAPSE;
+						}
+						
+						break;
+				}
+
+				break;
+			case MENU_TIMELSP_FREQ:
+				switch (button_event) {
+					case BUTTON_LEFT_SHORT:
+					case BUTTON_LEFT_LONG:
+						menu_state = MENU_TIMELSP_START_STOP;
+			
+						break;
+					case BUTTON_RIGHT_SHORT:
+					case BUTTON_RIGHT_LONG:
+						menu_state = MENU_TIMELSP_DURATION;
+		
+						break;
+					case BUTTON_SELECT_SHORT:
+					case BUTTON_SELECT_LONG:
+						//menu_state = ;
+						
+						break;
+				}
+
+				break;
+			case MENU_TIMELSP_DURATION:
+				switch (button_event) {
+					case BUTTON_LEFT_SHORT:
+					case BUTTON_LEFT_LONG:
+						menu_state = MENU_TIMELSP_FREQ;
+			
+						break;
+					case BUTTON_RIGHT_SHORT:
+					case BUTTON_RIGHT_LONG:
+						menu_state = MENU_TIMELSP_RETURN;
+		
+						break;
+					case BUTTON_SELECT_SHORT:
+					case BUTTON_SELECT_LONG:
+						//menu_state = ;
+						
+						break;
+				}
+
+				break;
+			case MENU_TIMELSP_RETURN:
+				switch (button_event) {
+					case BUTTON_LEFT_SHORT:
+					case BUTTON_LEFT_LONG:
+						menu_state = MENU_TIMELSP_DURATION;
+			
+						break;
+					case BUTTON_SELECT_SHORT:
+					case BUTTON_SELECT_LONG:
+						menu_state = MENU_MAIN_TIMELSP;
+						
+						break;
+				}
+
+				break;
+			//
+			// Manual Menu
+			//
+			case MENU_MANUAL_TRIGGER:
+				switch (button_event) {
+					case BUTTON_RIGHT_SHORT:
+					case BUTTON_RIGHT_LONG:
+						menu_state = MENU_MANUAL_RETURN;
+			
+						break;
+					case BUTTON_SELECT_SHORT:
+					case BUTTON_SELECT_LONG:
+						//menu_state = ;
+						
+						break;
+				}
+
+				break;
+			case MENU_MANUAL_RETURN:
+				switch (button_event) {
+					case BUTTON_LEFT_SHORT:
+					case BUTTON_LEFT_LONG:
+						menu_state = MENU_MANUAL_TRIGGER;
+		
+						break;
+					case BUTTON_SELECT_SHORT:
+					case BUTTON_SELECT_LONG:
+						menu_state = MENU_MAIN_MANUAL;
+						
+						break;
+				}
 
 				break;
 		}
 
+	display_menu(menu_state);
 	}
 }
 
-int menu_main_longexp(int button_event) {
-	
-	switch (button_event) {
-		case BUTTON_LEFT_SHORT:
-		case BUTTON_LEFT_LONG:
-			return MENU_MAIN_TIMELSP;
-			
+void display_menu(MENU_STATES menu_state) {
+	switch (menu_state) {
+		//
+		// Main Menu
+		//
+		case MENU_MAIN_SETTINGS:
+			print_menu(MSG_MAIN_MENU, MSG_SETTINGS_OPT);
+
 			break;
-		case BUTTON_RIGHT_SHORT:
-		case BUTTON_RIGHT_LONG:
-			return MENU_MAIN_SETTINGS;
-		
+		case MENU_MAIN_LONGEXP:
+			print_menu(MSG_MAIN_MENU, MSG_LONG_EXP_OPT);
+
 			break;
-		case BUTTON_SELECT_SHORT:
-		case BUTTON_SELECT_LONG:
-			return MENU_MAIN_LONGEXP;
-						
+		case MENU_MAIN_TIMELSP:
+			print_menu(MSG_MAIN_MENU, MSG_TIME_LPS_OPT);
+
+			break;
+		case MENU_MAIN_MANUAL:
+			print_menu(MSG_MAIN_MENU, MSG_MANNUAL_OPT);
+
+			break;
+		case MENU_MAIN_ABOUT:
+			print_menu(MSG_MAIN_MENU, MSG_ABOUT_OPT);
+
+			break;
+		//
+		// Settings Menu
+		//
+		case MENU_SETTINGS_CAMERA:
+			print_menu(MSG_SETTINGS_MENU, MSG_CAMERA_SETTINGS_OPT);
+
+			break;
+		case MENU_SETTINGS_DISPLAY:
+			print_menu(MSG_SETTINGS_MENU, MSG_DISPLAY_SETTINGS_OPT);
+
+			break;
+		case MENU_SETTINGS_RETURN:
+			print_menu(MSG_SETTINGS_MENU, MSG_BACK_OPT);
+
+			break;
+		//
+		// Long Exposure
+		//
+		case MENU_LONGEXP_START_CANCEL:
+			if (camera_mode == MODE_LONGEXP) {
+				print_menu(MSG_LONGEXP_MENU, MSG_CANCEL_OPT);
+			} else {
+				print_menu(MSG_LONGEXP_MENU, MSG_START_OPT);
+			}
+
+			break;
+		case MENU_LONGEXP_SHUTTER_TIME:
+			print_menu(MSG_LONGEXP_MENU, MSG_SHTTER_TIME_OPT);
+
+			break;
+		case MENU_LONGEXP_RETURN:
+			print_menu(MSG_LONGEXP_MENU, MSG_BACK_OPT);
+
+			break;
+		//
+		// Time-lapse
+		//
+		case MENU_TIMELSP_START_STOP:
+			if (camera_mode == MODE_TIMELAPSE) {
+				print_menu(MSG_TIMELAPSE_MENU, MSG_STOP_OPT);
+			} else {
+				print_menu(MSG_TIMELAPSE_MENU, MSG_START_OPT);
+			}
+
+			break;
+		case MENU_TIMELSP_FREQ:
+			print_menu(MSG_TIMELAPSE_MENU, MSG_FREQ_OPT);
+
+			break;
+		case MENU_TIMELSP_DURATION:
+			print_menu(MSG_TIMELAPSE_MENU, MSG_PERIOD_OPT);
+
+			break;
+		case MENU_TIMELSP_RETURN:
+			print_menu(MSG_TIMELAPSE_MENU, MSG_BACK_OPT);
+
+			break;
+		//
+		// Manual Menu
+		//
+		case MENU_MANUAL_TRIGGER:
+			print_menu(MSG_MANUAL_MENU, MSG_TRIGGER_OPT);
+
+			break;
+		case MENU_MANUAL_RETURN:
+			print_menu(MSG_MANUAL_MENU, MSG_BACK_OPT);
+
 			break;
 	}
-	
-	return MENU_MAIN_LONGEXP;
-}
-
-int menu_main_timelsp(int button_event) {
-
-	return MENU_TIMELSP;
-}
-
-int menu_main_manual(int button_event) {
-
-	return MENU_MANUAL;
-}
-
-int menu_main_settings(int button_event) {
-
-	return MENU_MANUAL;
 }
 
 unsigned int get_time(unsigned int time) {
@@ -146,7 +503,7 @@ unsigned int get_time(unsigned int time) {
 	char days;
 	
 	// Current and next state
-	int current_state;
+	int current_state = STATE_MILI_SEC;
 	int next_state;
 
 	//

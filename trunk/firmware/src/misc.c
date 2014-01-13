@@ -1,3 +1,4 @@
+#include <util/delay.h>
 #include "misc.h"
 
 // Delay function

@@ -51,20 +51,6 @@ void main_menu(int);
 // Global variables
 //
 
-// Delay times for camera
-unsigned long le_focus_time = 300;
-unsigned long le_focus_delay = 1500;
-unsigned long le_shutter_time = 3000;
-
-unsigned long tl_focus_time = 300;
-unsigned long tl_focus_delay = 1500;
-unsigned long tl_shutter_time = 300;
-unsigned long tl_shutter_delay = 1500;
-
-// Flags for enableing LE or TL in FSM
-bool le_flag = false;
-bool tl_flag = false;
-
 // Global button variables
 bool go_button;
 unsigned int go_button_counter;
@@ -98,15 +84,6 @@ int main (void) {
 
 	// Wait for 2 sec
 	delay_ms(2000);
-
-	/*button_events.push(BUTTON_LEFT_EVENT);
-	button_events.push(BUTTON_LEFT_EVENT);
-	button_events.push(BUTTON_LEFT_EVENT);
-	button_events.push(BUTTON_LEFT_EVENT);
-	button_events.push(BUTTON_SELECT_EVENT);
-	button_events.push(BUTTON_LEFT_EVENT);
-	button_events.push(BUTTON_LEFT_EVENT);
-	button_events.push(BUTTON_SELECT_EVENT);*/
 
 	// Enable global interupts
 	sei();
