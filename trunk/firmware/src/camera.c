@@ -29,34 +29,41 @@
 
 #include "global.h"
 #include "camera.h"
+#include "misc.h"
+
+bool tmp = true;
 
 // Global Variables
 CAMERA_MODES camera_mode = MODE_IDLE;
 
 // Delay times for camera
-unsigned long le_focus_time = 18;
-unsigned long le_focus_delay = 90;
-unsigned long le_shutter_time = 180;
+unsigned long le_focus_time = 30;
+unsigned long le_focus_delay = 150;
+unsigned long le_shutter_time = 300;
 
-unsigned long tl_focus_time = 18;
-unsigned long tl_focus_delay = 90;
-unsigned long tl_shutter_time = 18;
-unsigned long tl_shutter_delay = 90;
+unsigned long tl_focus_time = 30;
+unsigned long tl_focus_delay = 150;
+unsigned long tl_shutter_time = 30;
+unsigned long tl_shutter_delay = 150;
 
 // Configure timer 2 for delays
 void timing_init(void) {
-	//
-	// Configure Time/Counter 2 for counting up
-	// with an overflow interupt giving a freq
-	// of ~61 Hz
-	//
+	// Configure Time/Counter 1 for PWM
+	// Fast PWM Mode
+	// Waveform Generation:
+	// - Top: 0x0270
+	// - Update OCR: 0x00
+	// - TOV Flag: Top
+	// Clock Select: CLK/256
+	TCCR1A = 0x03;
+	TCCR1B = 0x1C;
+	TCCR1C = 0x00;
 
-	// Clock Select: CLK/1024
-	TCCR2A = 0x00;
-	TCCR2B = 0x07;
+	OCR1AH = 0x02;
+	OCR1AL = 0x70;
 
-	// Enable timer 2 overflow interupt
-	TIMSK2 |= 0x01;
+	// Enable timer 1 overflow interupt
+	TIMSK1 |= 0x01;
 }
 
 // Trigger shutter or focus pin
@@ -84,7 +91,7 @@ void set_focus(bool value) {
 // State machine that controls the timing and
 // state of the focus and shutter pins.
 //
-ISR (TIMER2_OVF_vect) {
+ISR (TIMER1_OVF_vect) {
 	// Run the camera state machine
 	camera_FSM();
 	
