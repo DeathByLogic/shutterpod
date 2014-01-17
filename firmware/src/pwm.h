@@ -32,7 +32,4 @@ void set_backlight_dc(void);
 void set_contrast_dc(void);
 void input_debounce(volatile uint8_t *, bool *, unsigned int *);
 
-extern bool go_button;
-extern unsigned int go_button_counter;
-
 #endif
