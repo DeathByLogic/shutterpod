@@ -23,6 +23,9 @@
 
 */
 
+#include <math.h>
+#include <avr/io.h>
+
 #include "global.h"
 #include "lcd.h"
 #include "fifo.h"
@@ -30,8 +33,6 @@
 #include "misc.h"
 #include "camera.h"
 #include "screen_text.h"
-
-#include <avr/io.h>
 
 // External variables
 extern lcd disp;
@@ -48,17 +49,16 @@ void display_splash() {
 	disp.print(MSG_SPLASH_2, 16);
 }
 
-/*
-menu_type::menu_type(char * menu_text, char * item_text, menu_type * up, menu_type * down, menu_type * left, menu_type * right) {
-	m_txt = menu_text;
-	i_txt = item_text;
+// Send a menu to the LCD display
+void print_menu(char *top_menu, char *bottom_menu) {
+	// Clear the display and go home
+	disp.clear_display();
 
-	n_up = up;
-	n_down = down;
-	n_left = left;
-	n_right = right;
-};
-*/
+	// Print splash screen
+	disp.print(top_menu, 16);
+	disp.set_display_address(LCD_LINE_2);
+	disp.print(bottom_menu, 16);
+}
 
 //
 // System Menu FSM
@@ -255,7 +255,7 @@ void menu_main(void) {
 						break;
 					case BUTTON_SELECT_SHORT:
 					case BUTTON_SELECT_LONG:
-						//menu_state = ;
+						menu_state = SET_LXP_SHUTTER_TIME;
 						
 						break;
 				}
@@ -386,6 +386,21 @@ void menu_main(void) {
 				}
 
 				break;
+			//
+			// Set Times
+			//
+			case SET_LXP_SHUTTER_TIME:
+				switch (button_event) {
+					case BUTTON_SELECT_SHORT:
+					case BUTTON_SELECT_LONG:
+						menu_state = MENU_LONGEXP_SHUTTER_TIME;
+						
+						break;
+					default:
+						le_shutter_time = get_time(le_shutter_time, button_event);
+
+						break;
+				}
 		}
 
 	display_menu(menu_state);
@@ -393,6 +408,8 @@ void menu_main(void) {
 }
 
 void display_menu(MENU_STATES menu_state) {
+	char time_text[16];
+
 	switch (menu_state) {
 		//
 		// Main Menu
@@ -485,182 +502,194 @@ void display_menu(MENU_STATES menu_state) {
 			print_menu(MSG_MANUAL_MENU, MSG_BACK_OPT);
 
 			break;
+		//
+		// Set Times
+		//
+		case SET_LXP_SHUTTER_TIME:
+			print_menu(MSG_LXP_SHUTTER_TIME, display_time(le_shutter_time));
+
+			break;
 	}
 }
 
-unsigned int get_time(unsigned int time) {
-	#define STATE_MILI_SEC	0x01
-	#define STATE_SEC		0x02
-	#define STATE_MIN		0x03
-	#define	STATE_HOUR		0x04
-	#define	STATE_DAY		0x05
-	
-	// Time storage
-	char miliseconds;
-	char seconds;
-	char minutes;
-	char hours;
-	char days;
-	
-	// Current and next state
-	int current_state = STATE_MILI_SEC;
-	int next_state;
+char *display_time(unsigned long time) {
+	static char dsp_text[16];
 
-	//
-	int button_event;
-	bool exit = false;
+	int hun_sec = get_hun_sec(time);
+	int sec = get_sec(time);
+	int min = get_min(time);
+	int hour = get_hour(time);
+	int day = get_day(time);
+
+	for (int i = 0; i < 16; i++) {
+		switch (i) {
+			case 1:
+				dsp_text[i] = TO_ASCII(day / 100);
+				break;
+			case 2:
+				dsp_text[i] = TO_ASCII((day % 100) / 10);
+				break;
+			case 3:
+				dsp_text[i] = TO_ASCII(day % 10);
+				break;
+			case 5:
+				dsp_text[i] = TO_ASCII(hour / 10);
+				break;
+			case 6:
+				dsp_text[i] = TO_ASCII(hour % 10);
+				break;
+			case 7:
+				dsp_text[i] = ':';
+				break;
+			case 8:
+				dsp_text[i] = TO_ASCII(min / 10);
+				break;
+			case 9:
+				dsp_text[i] = TO_ASCII(min % 10);
+				break;
+			case 10:
+				dsp_text[i] = ':';
+				break;
+			case 11:
+				dsp_text[i] = TO_ASCII(sec / 10);
+				break;
+			case 12:
+				dsp_text[i] = TO_ASCII(sec % 10);
+				break;
+			case 13:
+				dsp_text[i] = '.';
+				break;
+			case 14:
+				dsp_text[i] = TO_ASCII(hun_sec / 10);
+				break;
+			case 15:
+				dsp_text[i] = TO_ASCII(hun_sec % 10);
+				break;
+			default:
+				dsp_text[i] = ' ';
+				break;
+		}
+	}
+	return dsp_text;
+}
+
+unsigned long get_time(unsigned long time, int button_event) {
+	// Current and next state
+	static GET_TIME_STATES current_state = STATE_HUN_SEC;
 
 	// Configure LCD Settings
 
-	while (!exit) {
-		button_event = button_events.pop();
-		
-		if (button_event > 0) {
-			switch (current_state) {
-				case STATE_MILI_SEC:
-					switch (button_event) {
-						case BUTTON_UP_SHORT:
-							miliseconds += 1;
 
-							break;
-						case BUTTON_DOWN_SHORT:
-							miliseconds -= 1;
-											
-							break;
-						case BUTTON_LEFT_SHORT:
-							next_state = STATE_SEC;
-
-							break;
-					
-						case BUTTON_SELECT_SHORT:
-							exit = true;
-
-							break;
-					}
-				
-					CONSTRAIN(miliseconds, 0, 999);	
+	switch (current_state) {
+		case STATE_HUN_SEC:
+			switch (button_event) {
+				case BUTTON_UP_SHORT:
+					time += 1;
 
 					break;
-				case STATE_SEC:
-					switch (button_event) {
-						case BUTTON_UP_SHORT:
-							seconds += 1;
-
-							break;
-						case BUTTON_DOWN_SHORT:
-							seconds -= 1;
-											
-							break;
-						case BUTTON_LEFT_SHORT:
-							next_state = STATE_MIN;
-
-							break;
-						case BUTTON_RIGHT_SHORT:
-							next_state = STATE_MILI_SEC;
-
-							break;
-						case BUTTON_SELECT_SHORT:
-							exit = true;
-
-							break;
-					}
-				
-					CONSTRAIN(seconds, 0, 60);
+				case BUTTON_DOWN_SHORT:
+					time -= 1;
+									
+					break;
+				case BUTTON_LEFT_SHORT:
+					current_state = STATE_SEC;
 
 					break;
-				case STATE_MIN:
-					switch (button_event) {
-						case BUTTON_UP_SHORT:
-							minutes += 1;
-
-							break;
-						case BUTTON_DOWN_SHORT:
-							minutes -= 1;
-											
-							break;
-						case BUTTON_LEFT_SHORT:
-							next_state = STATE_HOUR;
-
-							break;
-						case BUTTON_RIGHT_SHORT:
-							next_state = STATE_SEC;
-
-							break;
-						case BUTTON_SELECT_SHORT:
-							exit = true;
-
-							break;
-					}
-				
-					CONSTRAIN(minutes, 0, 60);
-
-					break;
-				case STATE_HOUR:
-					switch (button_event) {
-						case BUTTON_UP_SHORT:
-							hours += 1;
-
-							break;
-						case BUTTON_DOWN_SHORT:
-							hours -= 1;
-											
-							break;
-						case BUTTON_LEFT_SHORT:
-							next_state = STATE_MIN;
-
-							break;
-						case BUTTON_RIGHT_SHORT:
-							next_state = STATE_DAY;
-
-							break;
-						case BUTTON_SELECT_SHORT:
-							exit = true;
-
-							break;
-					}
-				
-					CONSTRAIN(hours, 0, 24);
-
-					break;
-				case STATE_DAY:
-					switch (button_event) {
-						case BUTTON_UP_SHORT:
-							days += 1;
-
-							break;
-						case BUTTON_DOWN_SHORT:
-							days -= 1;
-											
-							break;
-						case BUTTON_RIGHT_SHORT:
-							next_state = STATE_HOUR;
-
-							break;
-						case BUTTON_SELECT_SHORT:
-							exit = true;
-
-							break;
-					}
-				
-					CONSTRAIN(days, 0, 999);
-
-					break;
-				default:
-					next_state = STATE_SEC;
 			}
 
-			current_state = next_state;
+			break;
+		case STATE_SEC:
+			switch (button_event) {
+				case BUTTON_UP_SHORT:
+					time += SEC_TICK;
 
-		}
+					break;
+				case BUTTON_DOWN_SHORT:
+					time -= SEC_TICK;
+									
+					break;
+				case BUTTON_LEFT_SHORT:
+					current_state = STATE_MIN;
+
+					break;
+				case BUTTON_RIGHT_SHORT:
+					current_state = STATE_HUN_SEC;
+
+					break;
+			}
+
+			break;
+		case STATE_MIN:
+			switch (button_event) {
+				case BUTTON_UP_SHORT:
+					time += MIN_TICK;
+
+					break;
+				case BUTTON_DOWN_SHORT:
+					time -= MIN_TICK;
+									
+					break;
+				case BUTTON_LEFT_SHORT:
+					current_state = STATE_HOUR;
+
+					break;
+				case BUTTON_RIGHT_SHORT:
+					current_state = STATE_SEC;
+
+					break;
+			}
+
+			break;
+		case STATE_HOUR:
+			switch (button_event) {
+				case BUTTON_UP_SHORT:
+					time += HOUR_TICK;
+
+					break;
+				case BUTTON_DOWN_SHORT:
+					time -= HOUR_TICK;
+									
+					break;
+				case BUTTON_LEFT_SHORT:
+					current_state = STATE_DAY;
+
+					break;
+				case BUTTON_RIGHT_SHORT:
+					current_state = STATE_MIN;
+
+					break;
+			}
+
+			break;
+		case STATE_DAY:
+			switch (button_event) {
+				case BUTTON_UP_SHORT:
+					time += DAY_TICK;
+
+					break;
+				case BUTTON_DOWN_SHORT:
+					time -= DAY_TICK;
+									
+					break;
+				case BUTTON_RIGHT_SHORT:
+					current_state = STATE_HOUR;
+
+					break;
+			}
+
+			break;
+		default:
+			current_state = STATE_HUN_SEC;
 	}
 
 	// Reset LCD Settings
+	return time;
 }
 
 //
 // Menu Support Functions
 //
-
+/*
 void int2progress_bar(unsigned int value, unsigned int *progress) {
 	unsigned int bars;
 
@@ -674,14 +703,5 @@ void int2progress_bar(unsigned int value, unsigned int *progress) {
 		}
 	}
 }
+*/
 
-// Send a menu to the LCD display
-void print_menu(char *top_menu, char *bottom_menu) {
-	// Clear the display and go home
-	disp.clear_display();
-
-	// Print splash screen
-	disp.print(top_menu, 16);
-	disp.set_display_address(LCD_LINE_2);
-	disp.print(bottom_menu, 16);
-}
