@@ -37,7 +37,6 @@
 #include "misc.h"
 #include "menu.h"
 #include "fifo.h"
-//#include "screen_text.h"
 
 //
 // Function constructs

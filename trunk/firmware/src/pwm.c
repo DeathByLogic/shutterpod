@@ -49,7 +49,7 @@ debounce btn_db_select(&call_back, BUTTON_SELECT_SHORT, BUTTON_SELECT_LONG);
 void pwm_init(void) {
 	// Configure Duty Cycle for 50%
 	OCR0A = 0xFF;//0x80;
-	OCR0B = 0x80;//0x80;	
+	OCR0B = 0x80;
 	
 	// Configure Time/Counter 0 for PWM
 	// Compare A & B: Fast PMW mode
