@@ -45,6 +45,11 @@ enum CAMERA_STATES {
 	STATE_CANCEL
 };
 
+#define SEC_TICK  100
+#define MIN_TICK  (unsigned long)(60 * SEC_TICK)
+#define HOUR_TICK (unsigned long)(60 * MIN_TICK)
+#define DAY_TICK  (unsigned long)(24 * HOUR_TICK)
+
 // Function constructs
 void set_focus(bool);
 void set_shutter(bool);
@@ -54,6 +59,12 @@ void shutter(bool);
 void focus(bool);
 
 void camera_FSM();
+
+int get_hun_sec(unsigned long);
+int get_sec(unsigned long);
+int get_min(unsigned long);
+int get_hour(unsigned long);
+int get_day(unsigned long);
 
 // External global variables
 extern CAMERA_MODES camera_mode;

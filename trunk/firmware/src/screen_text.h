@@ -67,4 +67,7 @@ char MSG_PERIOD_OPT[] =             "<-   Period   ->";
 
 char MSG_BACK_OPT[] =				"<-    Back      ";
 
+// Set Times
+char MSG_LXP_SHUTTER_TIME[] =       "Lng Exp Shutter ";
+
 #endif

@@ -24,14 +24,12 @@
 */
 
 // Includes
-#include <avr/io.h>
+#include <math.h>
 #include <avr/interrupt.h>
 
 #include "global.h"
 #include "camera.h"
 #include "misc.h"
-
-bool tmp = true;
 
 // Global Variables
 CAMERA_MODES camera_mode = MODE_IDLE;
@@ -252,4 +250,24 @@ void camera_FSM() {
 
 			break;
 	}
+}
+
+int get_hun_sec(unsigned long time) {
+	return (int)(time % SEC_TICK);
+}
+
+int get_sec(unsigned long time) {
+	return (int)((time % MIN_TICK) / SEC_TICK);
+}
+
+int get_min(unsigned long time) {
+	return (int)((time % HOUR_TICK) / MIN_TICK);
+}
+
+int get_hour(unsigned long time) {
+	return (int)((time % DAY_TICK) / HOUR_TICK);
+}
+
+int get_day(unsigned long time) {
+	return (int)(time / DAY_TICK);
 }
