@@ -87,7 +87,7 @@ void lcd::display_on(bool value) {
 }
 
 void lcd::cursor_underline(bool value) {
-	if (value) {
+	if (value == true) {
 		SETBITS(cDisplay_flags, LCD_UNDERLINE_ON);
 	} else {
 		CLEARBITS(cDisplay_flags, LCD_UNDERLINE_ON);
@@ -97,7 +97,7 @@ void lcd::cursor_underline(bool value) {
 }
 
 void lcd::cursor_blink(bool value) {
-	if (value) {
+	if (value == true) {
 		SETBITS(cDisplay_flags, LCD_CURSOR_BLINK_ON);
 	} else {
 		CLEARBITS(cDisplay_flags, LCD_CURSOR_BLINK_ON);
