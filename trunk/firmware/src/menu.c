@@ -38,6 +38,10 @@
 extern lcd disp;
 extern fifo button_events;
 
+// Menu States
+MENU_STATES menu_state = MENU_MAIN_SETTINGS;
+TIME_STATES time_state = STATE_HUN_SEC;
+
 // dispay the splash menu
 void display_splash() {
 	// Clear the display and go home
@@ -65,9 +69,6 @@ void print_menu(char *top_menu, char *bottom_menu) {
 //
 
 void menu_main(void) {
-	// Current Menu
-	static MENU_STATES menu_state = MENU_MAIN_SETTINGS;
-
 	// Pull next button event off stack
 	int button_event = button_events.pop();
 
@@ -256,6 +257,7 @@ void menu_main(void) {
 					case BUTTON_SELECT_SHORT:
 					case BUTTON_SELECT_LONG:
 						menu_state = SET_LXP_SHUTTER_TIME;
+						time_state = STATE_HUN_SEC;
 						
 						break;
 				}
@@ -394,7 +396,7 @@ void menu_main(void) {
 					case BUTTON_SELECT_SHORT:
 					case BUTTON_SELECT_LONG:
 						menu_state = MENU_LONGEXP_SHUTTER_TIME;
-						
+
 						break;
 					default:
 						le_shutter_time = get_time(le_shutter_time, button_event);
@@ -403,11 +405,11 @@ void menu_main(void) {
 				}
 		}
 
-	display_menu(menu_state);
+	display_menu();
 	}
 }
 
-void display_menu(MENU_STATES menu_state) {
+void display_menu(void) {
 	char time_text[16];
 
 	switch (menu_state) {
@@ -510,6 +512,9 @@ void display_menu(MENU_STATES menu_state) {
 
 			break;
 	}
+
+	// Update the current cursor posistion
+	display_cursor();
 }
 
 char *display_time(unsigned long time) {
@@ -570,17 +575,12 @@ char *display_time(unsigned long time) {
 				break;
 		}
 	}
+
 	return dsp_text;
 }
 
 unsigned long get_time(unsigned long time, int button_event) {
-	// Current and next state
-	static GET_TIME_STATES current_state = STATE_HUN_SEC;
-
-	// Configure LCD Settings
-
-
-	switch (current_state) {
+	switch (time_state) {
 		case STATE_HUN_SEC:
 			switch (button_event) {
 				case BUTTON_UP_SHORT:
@@ -592,7 +592,7 @@ unsigned long get_time(unsigned long time, int button_event) {
 									
 					break;
 				case BUTTON_LEFT_SHORT:
-					current_state = STATE_SEC;
+					time_state = STATE_SEC;
 
 					break;
 			}
@@ -609,11 +609,11 @@ unsigned long get_time(unsigned long time, int button_event) {
 									
 					break;
 				case BUTTON_LEFT_SHORT:
-					current_state = STATE_MIN;
+					time_state = STATE_MIN;
 
 					break;
 				case BUTTON_RIGHT_SHORT:
-					current_state = STATE_HUN_SEC;
+					time_state = STATE_HUN_SEC;
 
 					break;
 			}
@@ -630,11 +630,11 @@ unsigned long get_time(unsigned long time, int button_event) {
 									
 					break;
 				case BUTTON_LEFT_SHORT:
-					current_state = STATE_HOUR;
+					time_state = STATE_HOUR;
 
 					break;
 				case BUTTON_RIGHT_SHORT:
-					current_state = STATE_SEC;
+					time_state = STATE_SEC;
 
 					break;
 			}
@@ -651,11 +651,11 @@ unsigned long get_time(unsigned long time, int button_event) {
 									
 					break;
 				case BUTTON_LEFT_SHORT:
-					current_state = STATE_DAY;
+					time_state = STATE_DAY;
 
 					break;
 				case BUTTON_RIGHT_SHORT:
-					current_state = STATE_MIN;
+					time_state = STATE_MIN;
 
 					break;
 			}
@@ -672,18 +672,51 @@ unsigned long get_time(unsigned long time, int button_event) {
 									
 					break;
 				case BUTTON_RIGHT_SHORT:
-					current_state = STATE_HOUR;
+					time_state = STATE_HOUR;
 
 					break;
 			}
 
 			break;
 		default:
-			current_state = STATE_HUN_SEC;
+			time_state = STATE_HUN_SEC;
 	}
 
 	// Reset LCD Settings
 	return time;
+}
+
+void display_cursor(void) {
+	if (menu_state == SET_LXP_SHUTTER_TIME) {
+		// Configure LCD Settings
+		disp.cursor_underline(true);
+
+		switch (time_state) {
+			case STATE_HUN_SEC:
+				disp.set_display_address(0x4F);
+
+				break;
+			case STATE_SEC:
+				disp.set_display_address(0x4C);
+
+				break;
+			case STATE_MIN:
+				disp.set_display_address(0x49);
+
+				break;
+			case STATE_HOUR:
+				disp.set_display_address(0x46);
+
+				break;
+			case STATE_DAY:
+				disp.set_display_address(0x43);
+
+				break;
+		}
+	} else {
+		// Configure LCD Settings
+		disp.cursor_underline(false);
+	}
 }
 
 //

@@ -26,6 +26,8 @@
 #ifndef _MENU_H
 #define _MENU_H
 
+#define TO_ASCII(x) x + 0x30
+
 // Menu State Declorations
 enum MENU_STATES {
 	MENU_MAIN_SETTINGS,
@@ -48,17 +50,29 @@ enum MENU_STATES {
 	MENU_TIMELSP_RETURN,
 
 	MENU_MANUAL_TRIGGER,
-	MENU_MANUAL_RETURN
+	MENU_MANUAL_RETURN,
+
+	SET_LXP_SHUTTER_TIME
+};
+
+enum TIME_STATES {
+	STATE_HUN_SEC,
+	STATE_SEC,
+	STATE_MIN,
+	STATE_HOUR,
+	STATE_DAY
 };
 
 // Function constructs
 void display_splash(void);
-void display_menu(MENU_STATES);
+void display_menu(void);
+void display_cursor(void);
 void menu_main(void);
 
-unsigned int get_time(unsigned int);
+unsigned long get_time(unsigned long, int);
 
 void print_menu(char *, char *);
+char *display_time(unsigned long);
 
 // External global variables
 /*
