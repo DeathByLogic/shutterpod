@@ -28,8 +28,8 @@
 
 // function constructs
 void pwm_init(void);
-void set_backlight_dc(void);
-void set_contrast_dc(void);
+void set_backlight_dc(int);
+void set_contrast_dc(int);
 void input_debounce(volatile uint8_t *, bool *, unsigned int *);
 
 #endif
