@@ -87,6 +87,9 @@ int main (void) {
 	// Enable global interupts
 	sei();
 
+	// Display the menu
+	display_menu();
+
 	// Goto main menu
 	while (true) {
 		menu_main();
@@ -124,4 +127,6 @@ void config_lcd(void) {
 
 	// Goto the home location
 	disp.display_home();
+
+	disp.cursor_blink(false);
 }
