@@ -26,18 +26,17 @@
 // Includes
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "misc.h"
 #include "global.h"
 #include "pwm.h"
 #include "lcd.h"
 #include "fifo.h"
 #include "debounce.h"
 
-//Function Constructors
-void call_back(int flag, bool value);
-
 // Global Variables
 extern fifo button_events;
+
+//Function Constructors
+void call_back(int flag, bool value);
 
 debounce btn_db_up(&call_back, BUTTON_UP_SHORT, BUTTON_UP_LONG);
 debounce btn_db_down(&call_back, BUTTON_DOWN_SHORT, BUTTON_DOWN_LONG);
@@ -48,8 +47,8 @@ debounce btn_db_select(&call_back, BUTTON_SELECT_SHORT, BUTTON_SELECT_LONG);
 // Configure the PWM output for the backlight, contrast and button debouncing.
 void pwm_init(void) {
 	// Configure Duty Cycle for 50%
-	OCR0A = 0xFF;//0x80;
-	OCR0B = 0x80;
+	OCR0A = sys_param.contrast_level;
+	OCR0B = sys_param.brightness_level;
 	
 	// Configure Time/Counter 0 for PWM
 	// Compare A & B: Fast PMW mode
@@ -66,13 +65,19 @@ void pwm_init(void) {
 }
 
 // Set the duty cycle for the backlight
-void set_backlight_dc(int value) {
+void set_backlight_dc(uint8_t value) {
+	if (value > 0) {
+		TCCR0A = 0xA3;
+	} else {
+		TCCR0A = 0x83;
+	}
+
 	OCR0B = value;
 }
 
 // Set the duty cycle for the contract
-void set_contrast_dc(int value) {
-	OCR0A = value;
+void set_contrast_dc(uint8_t value) {
+	OCR0A = 128 + (value / 2);
 }
 
 // General system timing interupt

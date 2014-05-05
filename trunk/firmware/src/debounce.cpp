@@ -44,7 +44,7 @@ bool debounce::update(bool value) {
 		repeat_counter++;
 
 		if ((repeat_counter % REPEAT_COUNT) == 0) {
-			if (repeat_counter > (REPEAT_COUNT * 8)) {
+			if (repeat_counter > (REPEAT_COUNT * 9)) {
 				// Call callback function w/ long flag
 				cb_function(cb_long_flag, current_value);
 			} else {
