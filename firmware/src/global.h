@@ -26,13 +26,18 @@
 #ifndef _GLOBAL_H
 #define _GLOBAL_H
 
-// Common Macros for setting & clearing bits
-#define SETBITS(x, y)	x |= y
-#define CLEARBITS(x, y)	x &= ~y
-
-// constants definitions
+// Constants Definitions
 #define true	1
 #define false	0
+
+// Macros
+#define SETBITS(X, Y)				X |= Y
+#define CLEARBITS(X, Y)				X &= ~Y
+
+#define SETBIT(X, Y)				X |= (1 << Y)
+#define CLEARBIT(X, Y)				X &= ~(1 << Y)
+
+#define CONSTRAIN(VALUE, MIN, MAX)	((VALUE)<(MIN)?(MIN):((VALUE)>(MAX)?(MAX):(VALUE)))
 
 //
 // I/O Ports
@@ -70,11 +75,26 @@
 #define BUTTON_DOWN			PIND4
 
 //
-// EVENTS
+// System type defs
 //
 
+typedef struct {
+	unsigned long 	focus_time;
+	unsigned long 	shutter_delay;
+	unsigned long 	shutter_time;
+
+	uint8_t			contrast_level;
+	unsigned long	timeout_period; 
+	uint8_t			brightness_level;
+	uint8_t			le_brightness_level;
+	
+	unsigned long	le_shutter_time;
+	unsigned long	tl_period;
+	unsigned long	tl_duration;
+} system_parameters;
+
 // Button events
-enum BUTTON_EVENTS {
+enum button_events {
 	BUTTON_UP_SHORT = 1,
 	BUTTON_UP_LONG,
 
@@ -90,5 +110,8 @@ enum BUTTON_EVENTS {
 	BUTTON_DOWN_SHORT,
 	BUTTON_DOWN_LONG,
 };
+
+// External Variables
+extern system_parameters sys_param;
 
 #endif

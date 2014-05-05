@@ -40,19 +40,41 @@ enum MENU_STATES {
 	MENU_SETTINGS_DISPLAY,
 	MENU_SETTINGS_RETURN,
 
+	MENU_CAMERA_FOCUS_TIME,
+	MENU_CAMERA_DELAY_TIME,
+	MENU_CAMERA_SHUTTER_TIME,
+	MENU_CAMERA_RETURN,
+
+	MENU_DISPLAY_CONTRAST,
+	MENU_DISPLAY_TIMEOUT,
+	MENU_DISPLAY_BRIGHTNESS,
+	MENU_DISPLAY_TL_BRIGHTNESS,
+	MENU_DISPLAY_RETURN,
+
 	MENU_LONGEXP_START_CANCEL,
 	MENU_LONGEXP_SHUTTER_TIME,
 	MENU_LONGEXP_RETURN,
 
 	MENU_TIMELSP_START_STOP,
-	MENU_TIMELSP_FREQ,
+	MENU_TIMELSP_PERIOD,
 	MENU_TIMELSP_DURATION,
 	MENU_TIMELSP_RETURN,
 
 	MENU_MANUAL_TRIGGER,
 	MENU_MANUAL_RETURN,
 
-	SET_LXP_SHUTTER_TIME
+	SET_CAMERA_FOCUS_TIME,
+	SET_CAMERA_DELAY_TIME,
+	SET_CAMERA_SHUTTER_TIME,
+
+	SET_DISPLAY_CONTRAST,
+	SET_DISPLAY_TIMEOUT,
+	SET_DISPLAY_BRIGHTNESS,
+	SET_DISPLAY_TL_BRIGHTNESS,
+
+	SET_LONGEXP_SHUTTER_TIME,
+	SET_TIMELSP_PERIOD,
+	SET_TIMELSP_DURATION
 };
 
 enum TIME_STATES {
@@ -68,27 +90,12 @@ void display_splash(void);
 void display_menu(void);
 void display_cursor(void);
 void menu_main(void);
-
-unsigned long get_time(unsigned long, int);
-
 void print_menu(char *, char *);
-char *display_time(unsigned long);
 
-// External global variables
-/*
-class menu_type {
-	public:
-		menu_type(char * menu_text, char * item_text, menu_type * up, menu_type * down, menu_type * left, menu_type * right);
+void get_time(unsigned long *, uint8_t);
+void get_bar(uint8_t *, uint8_t);
 
-		char * m_txt;
-		char * i_txt;
-
-		class menu_type * n_up;
-		class menu_type * n_down;
-		class menu_type * n_left;
-		class menu_type * n_right;
-}*/
-
-// Misc
+char *display_time(unsigned long *);
+char *display_bar(uint8_t);
 
 #endif

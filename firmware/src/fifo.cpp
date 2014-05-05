@@ -25,7 +25,6 @@
 
 // Includes
 #include "fifo.h"
-#include "misc.h"
 
 // Class constructor
 fifo::fifo(void) {

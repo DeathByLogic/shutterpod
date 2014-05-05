@@ -27,8 +27,12 @@
 #include <avr/io.h> 
 #include "lcd.h"
 
+// Macros for LCD commands
+#define SETBITS(x, y)	x |= y
+#define CLEARBITS(x, y)	x &= ~y
+
 // Class constructor and destructor
-lcd::lcd(unsigned int flags) {
+lcd::lcd(uint8_t flags) {
 	SETBITS(CMD_DIR, RS_PIN | RW_PIN | EN_PIN);
 
 #if BUS_WIDTH == 4
@@ -53,25 +57,25 @@ void lcd::display_home() {
 	send_command(LCD_CURSOR_HOME);
 }
 
-void lcd::entry_mode(unsigned int flags) {
+void lcd::entry_mode(uint8_t flags) {
 	send_command(LCD_ENTRY_MODE | flags);
 }
 
-void lcd::display_control(unsigned int flags) {
+void lcd::display_control(uint8_t flags) {
 	cDisplay_flags = flags;
 
 	send_command(LCD_DISPLAY_CONTROL | flags);
 }
 
-void lcd::shift_control(unsigned int flags) {
+void lcd::shift_control(uint8_t flags) {
 	send_command(LCD_SHIFT_CONTROL | flags);
 }
 
-void lcd::set_cgram_address(unsigned int address) {
+void lcd::set_cgram_address(uint8_t address) {
 	send_command(LCD_CGRAM_ADDRESS | address);
 }
 
-void lcd::set_display_address(unsigned int address) {
+void lcd::set_display_address(uint8_t address) {
 	send_command(LCD_DISPLAY_ADDRESS | address);
 }
 
@@ -107,14 +111,14 @@ void lcd::cursor_blink(bool value) {
 }
 
 // Print text to screen
-void lcd::print(char *string, unsigned int length) {
-	for(unsigned int i = 0; i < length; i++) {
+void lcd::print(char *string, uint8_t length) {
+	for(uint8_t i = 0; i < length; i++) {
 		send_data(string[i]);
 	}
 }
 
-void lcd::print(unsigned int *array, unsigned int length) {
-	for(unsigned int i = 0; i < length; i++) {
+void lcd::print(uint8_t *array, uint8_t length) {
+	for(uint8_t i = 0; i < length; i++) {
 		send_data(array[i]);
 	}
 }
@@ -128,7 +132,7 @@ void lcd::print(int value) {
 }
 
 // Send functions
-void lcd::send_command(unsigned int command) {
+void lcd::send_command(uint8_t command) {
 	while(receive(false) > 127) {
 	//for(int i = 10000; i > 0; i--) {
 		asm("NOP");
@@ -137,7 +141,7 @@ void lcd::send_command(unsigned int command) {
 	send(false, command);
 }
 
-void lcd::send_data(unsigned int value) {
+void lcd::send_data(uint8_t value) {
 	while(receive(false) > 127) {
 	//for(int i = 10000; i > 0; i--) {
 		asm("NOP");
@@ -151,7 +155,7 @@ void lcd::send_data(unsigned int value) {
 //
 
 // Send data function
-void lcd::send(bool RS, unsigned int command) {
+void lcd::send(bool RS, uint8_t command) {
 	// Configure port as an output
 #if BUS_WIDTH == 4
 	SETBITS(DATA_DIR, DATA_MASK);
@@ -204,7 +208,7 @@ void lcd::send(bool RS, unsigned int command) {
 }
 
 // Read data function
-unsigned int lcd::receive(bool RS) {
+uint8_t lcd::receive(bool RS) {
 	int lcd_data = 0x00;
 	
 	// Configure port as in input

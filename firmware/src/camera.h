@@ -53,6 +53,7 @@ enum CAMERA_STATES {
 // Function constructs
 void set_focus(bool);
 void set_shutter(bool);
+void set_backlight_level(void);
 
 void timing_init(void);
 void shutter(bool);
@@ -60,23 +61,13 @@ void focus(bool);
 
 void camera_FSM();
 
-int get_hun_sec(unsigned long);
-int get_sec(unsigned long);
-int get_min(unsigned long);
-int get_hour(unsigned long);
-int get_day(unsigned long);
+uint8_t get_hun_sec(unsigned long *);
+uint8_t get_sec(unsigned long *);
+uint8_t get_min(unsigned long *);
+uint8_t get_hour(unsigned long *);
+uint8_t get_day(unsigned long *);
 
 // External global variables
 extern CAMERA_MODES camera_mode;
-
-// Delay times for camera
-extern unsigned long le_focus_time;
-extern unsigned long le_focus_delay;
-extern unsigned long le_shutter_time;
-
-extern unsigned long tl_focus_time;
-extern unsigned long tl_focus_delay;
-extern unsigned long tl_shutter_time;
-extern unsigned long tl_shutter_delay;
 
 #endif

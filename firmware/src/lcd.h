@@ -26,10 +26,6 @@
 #ifndef _LCD_H
 #define _LCD_H
 
-// Macros for LCD commands
-#define SETBITS(x, y)	x |= y
-#define CLEARBITS(x, y)	x &= ~y
-
 // Set the LCD interface bus width, either 8 or 4 bits
 #define BUS_WIDTH		4
 
@@ -101,23 +97,23 @@
 class lcd {
 	private:
 		// Saved settings
-		unsigned int cDisplay_flags;
+		uint8_t cDisplay_flags;
 		
 		// Functions to send/receive data to display
-		void send(bool, unsigned int);
-		unsigned int receive(bool);
+		void send(bool, uint8_t);
+		uint8_t receive(bool);
 	public:
 		// Constructor and destructor
-		lcd(unsigned int flags);
+		lcd(uint8_t flags);
 		
 		// Commands functions for LCD
 		void clear_display();
 		void display_home();
-		void entry_mode(unsigned int flags);
-		void display_control(unsigned int flags);
-		void shift_control(unsigned int flags);
-		void set_display_address(unsigned int address);
-		void set_cgram_address(unsigned int address);
+		void entry_mode(uint8_t flags);
+		void display_control(uint8_t flags);
+		void shift_control(uint8_t flags);
+		void set_display_address(uint8_t address);
+		void set_cgram_address(uint8_t address);
 		
 		// Display Options
 		void display_on(bool value);
@@ -127,12 +123,12 @@ class lcd {
 		// Print text string to LCD
 		void print(char value);
 		void print(int value);
-		void print(char *string, unsigned int length);
-		void print(unsigned int *array, unsigned int length);
+		void print(char *string, uint8_t length);
+		void print(uint8_t *array, uint8_t length);
 		
 		// Send raw commands / data to LCD
-		void send_command(unsigned int parameters);
-		void send_data(unsigned int value);
+		void send_command(uint8_t parameters);
+		void send_data(uint8_t value);
 };
 
 #endif

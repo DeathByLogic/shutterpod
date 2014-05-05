@@ -1,9 +1,9 @@
 /*
 
 	Project		: Shutter Pod
-	File		: pwm.h
-	Description	: PWM header file
-	Date		: 6/23/2010
+	File		: eeprom.cpp
+	Description	: EEPROM Read / Write
+	Date		: 5/4/2014
 
 	Shutter Pod is an open source hardware timer for SLR cameras.
 	Copyright (C) 2010 Daniel Wassenberg
@@ -23,14 +23,27 @@
 
 */
 
-#ifndef _PWM_H
-#define _PWM_H
+//
+// Includes
+//
 
-// function constructs
-void pwm_init(void);
-void input_debounce(volatile uint8_t *, bool *, unsigned int *);
+#include <avr/eeprom.h>
 
-void set_backlight_dc(uint8_t);
-void set_contrast_dc(uint8_t);
+#include "global.h"
+#include "eeprom.h"
 
-#endif
+//
+// Functions
+//
+
+void write_sys_param(void) {
+	eeprom_write_block(&sys_param, (uint16_t*)SYS_PARAM_ADDRESS, sizeof(sys_param));
+}
+
+void update_sys_param(void) {
+	eeprom_update_block(&sys_param, (uint16_t*)SYS_PARAM_ADDRESS, sizeof(sys_param));
+}
+
+void read_sys_param(void) {
+	eeprom_read_block(&sys_param, (uint16_t*)SYS_PARAM_ADDRESS, sizeof(sys_param));
+}

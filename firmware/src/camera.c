@@ -29,20 +29,10 @@
 
 #include "global.h"
 #include "camera.h"
-#include "misc.h"
+#include "pwm.h"
 
 // Global Variables
 CAMERA_MODES camera_mode = MODE_IDLE;
-
-// Delay times for camera
-unsigned long le_focus_time = 30;
-unsigned long le_focus_delay = 150;
-unsigned long le_shutter_time = 300;
-
-unsigned long tl_focus_time = 30;
-unsigned long tl_focus_delay = 150;
-unsigned long tl_shutter_time = 30;
-unsigned long tl_shutter_delay = 150;
 
 // Configure timer 2 for delays
 void timing_init(void) {
@@ -92,9 +82,6 @@ void set_focus(bool value) {
 ISR (TIMER1_OVF_vect) {
 	// Run the camera state machine
 	camera_FSM();
-	
-	// Debounce input buttons
-	//debouce_buttons();
 }
 
 void camera_FSM() {
@@ -111,6 +98,9 @@ void camera_FSM() {
 			if (camera_mode == MODE_LONGEXP) {
 				// Turn on focus
 				set_focus(true);
+				
+				// Set backlight level
+				set_backlight_level();
 
 				// Start long exposure loop
 				camera_state = STATE_LE_FOCUS;
@@ -131,7 +121,7 @@ void camera_FSM() {
 			break;
 		case STATE_LE_FOCUS:
 			if (camera_mode == MODE_LONGEXP) {
-				if (tick_count >= le_focus_time) {
+				if (tick_count >= sys_param.focus_time) {
 					// Turn off focus
 					set_focus(false);
 
@@ -147,7 +137,7 @@ void camera_FSM() {
 			break;
 		case STATE_LE_FOCUS_DELAY:
 			if (camera_mode == MODE_LONGEXP) {
-				if (tick_count >= le_focus_delay) {
+				if (tick_count >= sys_param.shutter_delay) {
 					// Turn on shutter
 					set_shutter(true);
 
@@ -163,13 +153,16 @@ void camera_FSM() {
 			break;
 		case STATE_LE_SHUTTER:
 			if (camera_mode == MODE_LONGEXP) {
-				if (tick_count >= le_shutter_time) {
+				if (tick_count >= sys_param.le_shutter_time) {
 					// Turn off long exposure flag 
 					camera_mode = MODE_IDLE;
 
 					// Turn off shutter
 					set_shutter(false);
-
+					
+					// Set backlight level
+					set_backlight_level();
+					
 					camera_state = STATE_IDLE;
 
 					// Reset tick count for next state
@@ -182,7 +175,7 @@ void camera_FSM() {
 			break;
 		case STATE_TL_FOCUS:
 			if (camera_mode == MODE_TIMELAPSE) {
-				if (tick_count >= tl_focus_time) {
+				if (tick_count >= sys_param.focus_time) {
 					// Turn off focus
 					set_focus(false);
 
@@ -197,7 +190,7 @@ void camera_FSM() {
 			break;
 		case STATE_TL_FOCUS_DELAY:
 			if (camera_mode == MODE_TIMELAPSE) {
-				if (tick_count >= tl_focus_delay) {
+				if (tick_count >= sys_param.shutter_delay) {
 					// Turn on shutter
 					set_shutter(true);
 
@@ -212,7 +205,7 @@ void camera_FSM() {
 			break;
 		case STATE_TL_SHUTTER:
 			if (camera_mode == MODE_TIMELAPSE) {
-				if (tick_count >= tl_shutter_time) {
+				if (tick_count >= sys_param.shutter_time) {
 					// Turn off shutter
 					set_shutter(false);
 
@@ -227,7 +220,7 @@ void camera_FSM() {
 			break;
 		case STATE_TL_DELAY:
 			if (camera_mode == MODE_TIMELAPSE) {
-				if (tick_count >= tl_shutter_delay) {
+				if (tick_count >= sys_param.tl_period) {
 					// Turn on focus
 					set_focus(true);
 
@@ -243,8 +236,12 @@ void camera_FSM() {
 		case STATE_CANCEL:
 			camera_state = STATE_IDLE;
 			
+			// Disable camera tiggers
 			set_shutter(false);
 			set_focus(false);
+
+			// Set backlight level
+			set_backlight_level();
 
 			tick_count = 0;			
 
@@ -252,22 +249,10 @@ void camera_FSM() {
 	}
 }
 
-int get_hun_sec(unsigned long time) {
-	return (int)(time % SEC_TICK);
-}
-
-int get_sec(unsigned long time) {
-	return (int)((time % MIN_TICK) / SEC_TICK);
-}
-
-int get_min(unsigned long time) {
-	return (int)((time % HOUR_TICK) / MIN_TICK);
-}
-
-int get_hour(unsigned long time) {
-	return (int)((time % DAY_TICK) / HOUR_TICK);
-}
-
-int get_day(unsigned long time) {
-	return (int)(time / DAY_TICK);
+void  set_backlight_level(void) {
+	if (camera_mode == MODE_LONGEXP) {
+		set_backlight_dc(sys_param.le_brightness_level);
+	} else {
+		set_backlight_dc(sys_param.brightness_level);
+	}
 }

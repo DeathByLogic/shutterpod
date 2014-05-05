@@ -28,15 +28,16 @@
 //
 
 #include <avr/io.h>
+#include <util/delay.h>
 #include <avr/interrupt.h>
 
 #include "global.h"
 #include "lcd.h"
 #include "pwm.h"
 #include "camera.h"
-#include "misc.h"
 #include "menu.h"
 #include "fifo.h"
+#include "eeprom.h"
 
 //
 // Function constructs
@@ -44,19 +45,16 @@
 
 void config_lcd(void);
 void config_io(void);
-void main_menu(int);
+void main_menu(void);
+void delay_ms(unsigned int);
 
 //
 // Global variables
 //
 
-// Global button variables
-bool go_button;
-unsigned int go_button_counter;
-
-// Global objects
-lcd disp(LCD_2_LINE | LCD_5_BY_7);
+lcd	 disp(LCD_2_LINE | LCD_5_BY_7);
 fifo button_events;
+system_parameters sys_param;
 
 //
 // Start of program
@@ -66,6 +64,9 @@ int main (void) {
 	// Configure the io port directions
 	config_io();
 
+	// Read system parameters from EEPROM
+	read_sys_param();
+
 	// Configure the PWM
 	pwm_init();
 
@@ -73,7 +74,7 @@ int main (void) {
 	timing_init();
 
 	// Give time for LCD to boot
-	delay_ms(250);
+	delay_ms(300);
 
 	// Configure the LCD
 	config_lcd();
@@ -129,4 +130,13 @@ void config_lcd(void) {
 	disp.display_home();
 
 	disp.cursor_blink(false);
+}
+
+// Delay function
+void delay_ms(unsigned int ms)
+{
+        while(ms){
+                _delay_ms(0.96);
+                ms--;
+        }
 }
