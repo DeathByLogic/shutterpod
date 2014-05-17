@@ -205,6 +205,15 @@ void lcd::send(bool RS, uint8_t command) {
 	// Clear enable pin
 	CLEARBITS(CMD_PORT, EN_PIN);
 #endif
+
+	// Configure port as in input
+#if BUS_WIDTH == 4
+	CLEARBITS(DATA_DIR, DATA_MASK);
+	CLEARBITS(DATA_WRITE_PORT, DATA_MASK);
+#else
+	CLEARBITS(DATA_DIR, 0xFF);
+	CLEARBITS(DATA_WRITE_PORT, 0xFF);
+#endif
 }
 
 // Read data function
