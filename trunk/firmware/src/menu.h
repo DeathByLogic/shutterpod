@@ -86,16 +86,20 @@ enum TIME_STATES {
 };
 
 // Function constructs
-void display_splash(void);
-void display_menu(void);
-void display_cursor(void);
-void menu_main(void);
+void menu_fsm(uint8_t);
+void update_display(void);
+void update_cursor(void);
+
+char *display_time(unsigned long *);
+char *display_bar(uint8_t);
+
 void print_menu(char *, char *);
 
 void get_time(unsigned long *, uint8_t);
 void get_bar(uint8_t *, uint8_t);
 
-char *display_time(unsigned long *);
-char *display_bar(uint8_t);
+// External Variables
+extern char MSG_SPLASH_1[];
+extern char MSG_SPLASH_2[];
 
 #endif

@@ -24,16 +24,16 @@
 */
 
 // Includes
-#include <avr/io.h>
 #include <avr/interrupt.h>
+
 #include "global.h"
 #include "pwm.h"
-#include "lcd.h"
-#include "fifo.h"
 #include "debounce.h"
 
 // Global Variables
 extern fifo button_events;
+
+extern void handle_event(void);
 
 //Function Constructors
 void call_back(int flag, bool value);
@@ -46,9 +46,9 @@ debounce btn_db_select(&call_back, BUTTON_SELECT_SHORT, BUTTON_SELECT_LONG);
 
 // Configure the PWM output for the backlight, contrast and button debouncing.
 void pwm_init(void) {
-	// Configure Duty Cycle for 50%
-	OCR0A = sys_param.contrast_level;
-	OCR0B = sys_param.brightness_level;
+	// Configure Duty Cycle
+	set_contrast_dc(sys_param.contrast_level);
+	set_backlight_dc(sys_param.brightness_level);
 	
 	// Configure Time/Counter 0 for PWM
 	// Compare A & B: Fast PMW mode
@@ -57,11 +57,18 @@ void pwm_init(void) {
 	// - Update OCR: 0x00
 	// - TOV Flag: 0xFF
 	// Clock Select: CLK/8
-	TCCR0A = 0xA3;
+//	TCCR0A = 0xA3;
 	TCCR0B = 0x02;
 
 	// Enable timer 0 overflow interupt
 	TIMSK0 |= 0x01;
+}
+
+void pwm_deinit(void) {
+	TCCR0A = 0x00;
+	TCCR0B = 0x00;
+
+	TIMSK0 = 0x00;
 }
 
 // Set the duty cycle for the backlight
@@ -87,6 +94,8 @@ ISR(TIMER0_OVF_vect) {
 	btn_db_left.update((bool)(BUTTON_PIN & (1 << BUTTON_LEFT)));
 	btn_db_right.update((bool)(BUTTON_PIN & (1 << BUTTON_RIGHT)));
 	btn_db_select.update((bool)(BUTTON_PIN & (1 << BUTTON_SELECT)));
+
+	handle_event();
 }
 
 void call_back(int flag, bool value) {

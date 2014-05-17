@@ -27,17 +27,15 @@
 // Includes
 //
 
-#include <avr/io.h>
-#include <util/delay.h>
 #include <avr/interrupt.h>
+#include <util/delay.h>
 
 #include "global.h"
-#include "lcd.h"
 #include "pwm.h"
 #include "camera.h"
 #include "menu.h"
-#include "fifo.h"
 #include "eeprom.h"
+#include "low_power.h"
 
 //
 // Function constructs
@@ -80,20 +78,53 @@ int main (void) {
 	config_lcd();
 
 	// Print splash screen
-	display_splash();
+	print_menu(MSG_SPLASH_1, MSG_SPLASH_2);
 
 	// Wait for 2 sec
 	delay_ms(2000);
+
+	PCMSK2 = 0x1F;
+	PCICR = 0x04;
 
 	// Enable global interupts
 	sei();
 
 	// Display the menu
-	display_menu();
+	update_display();
 
 	// Goto main menu
 	while (true) {
-		menu_main();
+		if (enter_pwr_dwn == true) {
+			enter_pwr_dwn = false;
+
+			power_down();
+		} else {
+			idle();
+		}
+	}
+}
+
+// Wake up from sleep from button push
+ISR(PCINT2_vect) {
+	asm("NOP");
+}
+
+void handle_event(void) {
+	// Pull next button event off stack
+	uint8_t button_event = button_events.pop();
+
+	if (button_event > 0) {
+		// Clear the backlight timeout counter
+		timeout_count = 0;
+
+		// Update menu state and take actions based on button events
+		menu_fsm(button_event);
+
+		// Update the display
+		update_display();
+
+		// Update the current cursor posistion
+		update_cursor();
 	}
 }
 
@@ -135,8 +166,8 @@ void config_lcd(void) {
 // Delay function
 void delay_ms(unsigned int ms)
 {
-        while(ms){
-                _delay_ms(0.96);
-                ms--;
-        }
+	while(ms){
+		_delay_ms(0.96);
+		ms--;
+	}
 }

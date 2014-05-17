@@ -1,9 +1,9 @@
 /*
 
 	Project		: Shutter Pod
-	File		: pwm.h
-	Description	: PWM header file
-	Date		: 6/23/2010
+	File		: low_power.h
+	Description	: Low power and sleep header
+	Date		: 5/6/2014
 
 	Shutter Pod is an open source hardware timer for SLR cameras.
 	Copyright (C) 2010 Daniel Wassenberg
@@ -22,16 +22,14 @@
 	along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
+#ifndef _LOW_POWER_H
+#define _LOW_POWER_H
 
-#ifndef _PWM_H
-#define _PWM_H
+void power_down(void);
+void idle(void);
+void disable_devices(void);
+void enable_devices(void);
 
-// function constructs
-void pwm_init(void);
-void pwm_deinit(void);
-void input_debounce(volatile uint8_t *, bool *, unsigned int *);
-
-void set_backlight_dc(uint8_t);
-void set_contrast_dc(uint8_t);
+extern bool enter_pwr_dwn;
 
 #endif
