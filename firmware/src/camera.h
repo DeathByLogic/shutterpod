@@ -56,6 +56,7 @@ void set_shutter(bool);
 void set_backlight_level(void);
 
 void timing_init(void);
+void timing_deinit(void);
 void shutter(bool);
 void focus(bool);
 
@@ -69,5 +70,6 @@ uint8_t get_day(unsigned long *);
 
 // External global variables
 extern CAMERA_MODES camera_mode;
+extern unsigned long timeout_count;
 
 #endif

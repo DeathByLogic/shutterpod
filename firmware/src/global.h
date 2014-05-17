@@ -26,6 +26,9 @@
 #ifndef _GLOBAL_H
 #define _GLOBAL_H
 
+#include "lcd.h"
+#include "fifo.h"
+
 // Constants Definitions
 #define true	1
 #define false	0
@@ -112,6 +115,8 @@ enum button_events {
 };
 
 // External Variables
+extern lcd disp;
+extern fifo button_events;
 extern system_parameters sys_param;
 
 #endif
