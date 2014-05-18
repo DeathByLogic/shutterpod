@@ -65,6 +65,9 @@ char MSG_LONGEXP_MENU[] =				"Long Exposure   ";
 // Timelapse menu
 char MSG_TIMELAPSE_MENU[] =         	"Timelapse       ";
 
+// Time Delay menu
+char MSG_TIMEDLY_MENU[] = 				"Time Delay      ";
+
 // Generic menus
 char MSG_START_OPT[] =					"     Start     >";
 char MSG_STOP_OPT[] =					"      Stop     >";
@@ -72,6 +75,7 @@ char MSG_CANCEL_OPT[] =					"     Cancel    >";
 
 char MSG_PERIOD_OPT[] =					"<    Period    >";
 char MSG_DURATION_OPT[] =				"<   Duration    ";
+char MSG_DELAY_TIME_OPT[] = 			"<  Delay Time   ";
 
 // Set Camera Settings
 char MSG_DISPLAY_FOCUS_TIME[] =			"Focus Time      ";
@@ -90,6 +94,9 @@ char MSG_LXP_SHUTTER_TIME[] =			"Lng Exp Shutter ";
 // Set Timelapse Times
 char MSG_TLP_PERIOD[] =					"Time Lapse Prd  ";
 char MSG_TLP_DURATION[] =				"Time Lapse Dur  ";
+
+// Set Time Delay Times
+char MSG_TDL_DELAY_TIME[] = 			"Delay Time      ";
 
 //
 // Functions
@@ -125,8 +132,7 @@ void menu_fsm(uint8_t button_event) {
 					} else {
 						camera_mode = MODE_LONGEXP;
 					}
-					
-					
+										
 					break;
 			}
 
@@ -169,7 +175,7 @@ void menu_fsm(uint8_t button_event) {
 					break;
 				case BUTTON_DOWN_SHORT:
 				case BUTTON_DOWN_LONG:
-					menu_state = MENU_CAMERA_FOCUS_TIME;
+					menu_state = MENU_TIMEDLY_START_CANCEL;
 
 					break;
 				case BUTTON_RIGHT_SHORT:
@@ -198,7 +204,7 @@ void menu_fsm(uint8_t button_event) {
 					break;
 				case BUTTON_DOWN_SHORT:
 				case BUTTON_DOWN_LONG:
-					menu_state = MENU_CAMERA_FOCUS_TIME;
+					menu_state = MENU_TIMEDLY_START_CANCEL;
 
 					break;
 				case BUTTON_LEFT_SHORT:
@@ -229,7 +235,7 @@ void menu_fsm(uint8_t button_event) {
 					break;
 				case BUTTON_DOWN_SHORT:
 				case BUTTON_DOWN_LONG:
-					menu_state = MENU_CAMERA_FOCUS_TIME;
+					menu_state = MENU_TIMEDLY_START_CANCEL;
 
 					break;
 				case BUTTON_LEFT_SHORT:
@@ -247,13 +253,72 @@ void menu_fsm(uint8_t button_event) {
 
 			break;
 		//
+		// Time Delay Menu
+		//
+		case MENU_TIMEDLY_START_CANCEL:
+			switch (button_event) {
+				case BUTTON_UP_SHORT:
+				case BUTTON_UP_LONG:
+					menu_state = MENU_TIMELSP_START_STOP;
+
+					break;
+				case BUTTON_DOWN_SHORT:
+				case BUTTON_DOWN_LONG:
+					menu_state = MENU_CAMERA_FOCUS_TIME;
+
+					break;
+				case BUTTON_RIGHT_SHORT:
+				case BUTTON_RIGHT_LONG:
+					menu_state = MENU_TIMEDLY_DELAY_TIME;
+		
+					break;
+				case BUTTON_SELECT_SHORT:
+				case BUTTON_SELECT_LONG:
+					if (camera_mode == MODE_TIMEDELAY) {
+						camera_mode = MODE_IDLE;
+					} else {
+						camera_mode = MODE_TIMEDELAY;
+					}
+					
+					
+					break;
+			}
+
+			break;
+		case MENU_TIMEDLY_DELAY_TIME:
+			switch (button_event) {
+				case BUTTON_UP_SHORT:
+				case BUTTON_UP_LONG:
+					menu_state = MENU_TIMELSP_START_STOP;
+
+					break;
+				case BUTTON_DOWN_SHORT:
+				case BUTTON_DOWN_LONG:
+					menu_state = MENU_CAMERA_FOCUS_TIME;
+
+					break;
+				case BUTTON_LEFT_SHORT:
+				case BUTTON_LEFT_LONG:
+					menu_state = MENU_TIMEDLY_START_CANCEL;
+		
+					break;
+				case BUTTON_SELECT_SHORT:
+				case BUTTON_SELECT_LONG:
+					menu_state = SET_TIMEDLY_DELAY_TIME;
+					time_state = STATE_HUN_SEC;
+					
+					break;
+			}
+
+			break;
+		//
 		// Camera Settings
 		//
 		case MENU_CAMERA_FOCUS_TIME:
 			switch (button_event) {
 				case BUTTON_UP_SHORT:
 				case BUTTON_UP_LONG:
-					menu_state = MENU_TIMELSP_START_STOP;
+					menu_state = MENU_TIMEDLY_START_CANCEL;
 
 					break;
 				case BUTTON_DOWN_SHORT:
@@ -269,6 +334,7 @@ void menu_fsm(uint8_t button_event) {
 				case BUTTON_SELECT_SHORT:
 				case BUTTON_SELECT_LONG:
 					menu_state = SET_CAMERA_FOCUS_TIME;
+					time_state = STATE_HUN_SEC;
 					
 					break;
 			}
@@ -278,7 +344,7 @@ void menu_fsm(uint8_t button_event) {
 			switch (button_event) {
 				case BUTTON_UP_SHORT:
 				case BUTTON_UP_LONG:
-					menu_state = MENU_TIMELSP_START_STOP;
+					menu_state = MENU_TIMEDLY_START_CANCEL;
 
 					break;
 				case BUTTON_DOWN_SHORT:
@@ -299,6 +365,7 @@ void menu_fsm(uint8_t button_event) {
 				case BUTTON_SELECT_SHORT:
 				case BUTTON_SELECT_LONG:
 					menu_state = SET_CAMERA_DELAY_TIME;
+					time_state = STATE_HUN_SEC;
 					
 					break;
 			}
@@ -308,7 +375,7 @@ void menu_fsm(uint8_t button_event) {
 			switch (button_event) {
 				case BUTTON_UP_SHORT:
 				case BUTTON_UP_LONG:
-					menu_state = MENU_TIMELSP_START_STOP;
+					menu_state = MENU_TIMEDLY_START_CANCEL;
 
 					break;
 				case BUTTON_DOWN_SHORT:
@@ -324,6 +391,7 @@ void menu_fsm(uint8_t button_event) {
 				case BUTTON_SELECT_SHORT:
 				case BUTTON_SELECT_LONG:
 					menu_state = SET_CAMERA_SHUTTER_TIME;
+					time_state = STATE_HUN_SEC;
 					
 					break;
 			}
@@ -415,6 +483,7 @@ void menu_fsm(uint8_t button_event) {
 				case BUTTON_SELECT_SHORT:
 				case BUTTON_SELECT_LONG:
 					menu_state = SET_DISPLAY_TIMEOUT;
+					time_state = STATE_HUN_SEC;
 					
 					break;
 			}
@@ -634,6 +703,26 @@ void menu_fsm(uint8_t button_event) {
 			}
 
 			break;
+		//
+		// Set Time Delay Time
+		//
+		case SET_TIMEDLY_DELAY_TIME:
+			switch (button_event) {
+				case BUTTON_SELECT_SHORT:
+				case BUTTON_SELECT_LONG:
+					// Update system param in eeprom
+					update_sys_param();
+
+					menu_state = MENU_TIMEDLY_DELAY_TIME;
+
+					break;
+				default:
+					get_time(&sys_param.td_delay_time, button_event);
+
+					break;
+			}
+
+			break;
 	}
 }
 
@@ -709,6 +798,21 @@ void update_display(void) {
 
 			break;
 		//
+		// Time Delay
+		//
+		case MENU_TIMEDLY_START_CANCEL:
+			if (camera_mode == MODE_TIMEDELAY) {
+				print_menu(MSG_TIMEDLY_MENU, MSG_CANCEL_OPT);
+			} else {
+				print_menu(MSG_TIMEDLY_MENU, MSG_START_OPT);
+			}
+
+			break;
+		case MENU_TIMEDLY_DELAY_TIME:
+			print_menu(MSG_TIMEDLY_MENU, MSG_DELAY_TIME_OPT);
+
+			break;
+		//
 		// Set Camera Settings
 		//
 		case SET_CAMERA_FOCUS_TIME:
@@ -762,6 +866,13 @@ void update_display(void) {
 			print_menu(MSG_TLP_DURATION, display_time(&sys_param.tl_duration));
 
 			break;
+		//
+		// Set Time Delay Times
+		//
+		case SET_TIMEDLY_DELAY_TIME:
+			print_menu(MSG_TDL_DELAY_TIME, display_time(&sys_param.td_delay_time));
+
+			break;
 	}
 }
 
@@ -773,7 +884,8 @@ void update_cursor(void) {
 		menu_state == SET_CAMERA_SHUTTER_TIME or
 		menu_state == SET_LONGEXP_SHUTTER_TIME or
 		menu_state == SET_TIMELSP_PERIOD or
-		menu_state == SET_TIMELSP_DURATION) {
+		menu_state == SET_TIMELSP_DURATION or
+		menu_state == SET_TIMEDLY_DELAY_TIME) {
 
 		// Configure LCD Settings
 		disp.cursor_underline(true);

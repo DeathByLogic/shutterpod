@@ -125,9 +125,15 @@ void camera_FSM() {
 
 				// Start time lapse loop
 				camera_state = STATE_TL_FOCUS;
+			} else if (camera_mode == MODE_TIMEDELAY) {
+				// State time delay loop
+				camera_state = STATE_TD_DELAY;
 			}
 
 			break;
+		//
+		// Long Exposure States
+		//
 		case STATE_LE_FOCUS:
 			if (camera_mode == MODE_LONGEXP) {
 				if (tick_count >= sys_param.focus_time) {
@@ -179,6 +185,9 @@ void camera_FSM() {
 			}
 
 			break;
+		//
+		// Timelapse States
+		//
 		case STATE_TL_FOCUS:
 			if (camera_mode == MODE_TIMELAPSE) {
 				if (tick_count >= (sys_param.focus_time + tick_sum)) {
@@ -244,6 +253,70 @@ void camera_FSM() {
 			}
 			
 			break;
+		//
+		// Time Delay States
+		//
+		case STATE_TD_DELAY:
+			if (camera_mode == MODE_TIMEDELAY) {
+				if (tick_count >= (sys_param.td_delay_time - sys_param.shutter_delay - sys_param.focus_time)) {
+					// Turn on focus
+					set_focus(true);
+
+					camera_state = STATE_TD_FOCUS;
+				}
+			} else {
+				camera_state = STATE_CANCEL;
+			}
+
+			break;
+		case STATE_TD_FOCUS:
+			if (camera_mode == MODE_TIMEDELAY) {
+				if (tick_count >= (sys_param.td_delay_time - sys_param.shutter_delay)) {
+					// Turn off focus
+					set_focus(false);
+
+					camera_state = STATE_TD_FOCUS_DELAY;
+				}
+			} else {
+				camera_state = STATE_CANCEL;
+			}
+
+			break;
+		case STATE_TD_FOCUS_DELAY:
+			if (camera_mode == MODE_TIMEDELAY) {
+				if (tick_count >= (sys_param.td_delay_time)) {
+					// Turn on shutter
+					set_shutter(true);
+
+					camera_state = STATE_TD_SHUTTER;
+				}
+			} else {
+				camera_state = STATE_CANCEL;
+			}
+
+			break;
+		case STATE_TD_SHUTTER:
+			if (camera_mode == MODE_TIMEDELAY) {
+				if (tick_count >= (sys_param.td_delay_time + sys_param.shutter_time)) {
+					// Turn off time delay flag 
+					camera_mode = MODE_IDLE;
+
+					// Turn off shutter
+					set_shutter(false);
+
+					// Update the LCD display
+					update_display();
+
+					camera_state = STATE_IDLE;
+				}
+			} else {
+				camera_state = STATE_CANCEL;
+			}
+
+			break;
+		//
+		// Misc States
+		//
 		case STATE_CANCEL:
 			camera_state = STATE_IDLE;
 			
@@ -261,7 +334,7 @@ void set_backlight_level(void) {
 	if (timeout_count < sys_param.timeout_period) {
 		timeout_count++;
 
-		if (camera_mode == MODE_LONGEXP) {
+		if (camera_mode == MODE_LONGEXP or menu_state == SET_DISPLAY_TL_BRIGHTNESS) {
 			set_backlight_dc(sys_param.le_brightness_level);
 		} else {
 			set_backlight_dc(sys_param.brightness_level);
