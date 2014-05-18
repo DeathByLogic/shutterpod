@@ -94,6 +94,7 @@ typedef struct {
 	unsigned long	le_shutter_time;
 	unsigned long	tl_period;
 	unsigned long	tl_duration;
+	unsigned long	td_delay_time;
 } system_parameters;
 
 // Button events
