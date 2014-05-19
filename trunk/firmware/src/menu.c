@@ -41,62 +41,62 @@ TIME_STATES time_state = STATE_HUN_SEC;
 //
 
 // Spash screen
-char MSG_SPLASH_1[] =					"  Shutter  Pod  ";
-char MSG_SPLASH_2[] =					"  Version  0.2  ";
+char MSG_SPLASH_1[] =						"  Shutter  Pod  ";
+char MSG_SPLASH_2[] =						"  Version  0.2  ";
 
 // Camera Settings menu
-char MSG_CAMERA_MENU[] =				"Camera Settings ";
+char MSG_CAMERA_MENU[] =					"Camera Settings ";
 
-char MSG_FOCUS_OPT[] = 					"   Focus Time  >";
-char MSG_DELAY_OPT[] = 					"<  Delay Time  >";
-char MSG_SHUTTER_OPT[] = 				"< Shutter Time  ";
+char MSG_FOCUS_OPT[] = 						"   Focus Time  >";
+char MSG_DELAY_OPT[] = 						"<  Delay Time  >";
+char MSG_SHUTTER_OPT[] = 					"< Shutter Time  ";
 
 // Display Settings menu
-char MSG_DISPLAY_MENU[] =				"Display Settings";
+char MSG_DISPLAY_MENU[] =					"Display Settings";
 
-char MSG_BRIGHTNESS_OPT[] = 			"   Brightness  >";
-char MSG_TL_BRIGHTNESS_OPT[] =			"<TmLp Brghtness>";
-char MSG_TIMEOUT_OPT[] = 				"<   Time Out   >";
-char MSG_CONTRAST_OPT[] = 				"<   Contrast    ";
+char MSG_BRIGHTNESS_OPT[] = 				"   Brightness  >";
+char MSG_TL_BRIGHTNESS_OPT[] =				"<TmLp Brghtness>";
+char MSG_TIMEOUT_OPT[] = 					"<   Time Out   >";
+char MSG_CONTRAST_OPT[] = 					"<   Contrast    ";
 
 // Long Exposure menu
-char MSG_LONGEXP_MENU[] =				"Long Exposure   ";
+char MSG_LONGEXP_MENU[] =					"Long Exposure   ";
 
 // Timelapse menu
-char MSG_TIMELAPSE_MENU[] =         	"Timelapse       ";
+char MSG_TIMELAPSE_MENU[] =         		"Timelapse       ";
 
 // Time Delay menu
-char MSG_TIMEDLY_MENU[] = 				"Time Delay      ";
+char MSG_TIMEDLY_MENU[] = 					"Time Delay      ";
 
 // Generic menus
-char MSG_START_OPT[] =					"     Start     >";
-char MSG_STOP_OPT[] =					"      Stop     >";
-char MSG_CANCEL_OPT[] =					"     Cancel    >";
+char MSG_START_OPT[] =						"     Start     >";
+char MSG_STOP_OPT[] =						"      Stop     >";
+char MSG_CANCEL_OPT[] =						"     Cancel    >";
 
-char MSG_PERIOD_OPT[] =					"<    Period    >";
-char MSG_DURATION_OPT[] =				"<   Duration    ";
-char MSG_DELAY_TIME_OPT[] = 			"<  Delay Time   ";
+char MSG_PERIOD_OPT[] =						"<    Period    >";
+char MSG_DURATION_OPT[] =					"<   Duration    ";
+char MSG_DELAY_TIME_OPT[] = 				"<  Delay Time   ";
 
 // Set Camera Settings
-char MSG_DISPLAY_FOCUS_TIME[] =			"Focus Time      ";
-char MSG_DISPLAY_SHUTTER_TIME[] =		"Shutter Time    ";
-char MSG_DISPLAY_DELAY_TIME[] =			"Shutter Delay   ";
+char MSG_DISPLAY_FOCUS_TIME[] =				"Focus Time      ";
+char MSG_DISPLAY_SHUTTER_TIME[] =			"Shutter Time    ";
+char MSG_DISPLAY_DELAY_TIME[] =				"Shutter Delay   ";
 
 // Set Display Settings
-char MSG_DISPLAY_CONTRAST_LEVEL[] =		"Dsp Contrast    ";
-char MSG_DISPLAY_TIMEOUT_PERIOD[] =		"Timeout Period  ";
-char MSG_DISPLAY_BRIGHTNESS_LEVEL[] =   "Dsp Brightness  ";
-char MSG_DISPLAY_TL_BRIGHTNESS_LEVEL[] = "TmLp Brightness ";
+char MSG_DISPLAY_CONTRAST_LEVEL[] =			"Dsp Contrast    ";
+char MSG_DISPLAY_TIMEOUT_PERIOD[] =			"Timeout Period  ";
+char MSG_DISPLAY_BRIGHTNESS_LEVEL[] =   	"Dsp Brightness  ";
+char MSG_DISPLAY_TL_BRIGHTNESS_LEVEL[] =	"TmLp Brightness ";
 
 // Set Long Exposure Times
-char MSG_LXP_SHUTTER_TIME[] =			"Lng Exp Shutter ";
+char MSG_LXP_SHUTTER_TIME[] =				"Lng Exp Shutter ";
 
 // Set Timelapse Times
-char MSG_TLP_PERIOD[] =					"Time Lapse Prd  ";
-char MSG_TLP_DURATION[] =				"Time Lapse Dur  ";
+char MSG_TLP_PERIOD[] =						"Time Lapse Prd  ";
+char MSG_TLP_DURATION[] =					"Time Lapse Dur  ";
 
 // Set Time Delay Times
-char MSG_TDL_DELAY_TIME[] = 			"Delay Time      ";
+char MSG_TDL_DELAY_TIME[] = 				"Delay Time      ";
 
 //
 // Functions
@@ -117,7 +117,11 @@ void menu_fsm(uint8_t button_event) {
 					break;
 				case BUTTON_DOWN_SHORT:
 				case BUTTON_DOWN_LONG:
-					menu_state = MENU_TIMELSP_START_STOP;
+					if (camera_mode == MODE_LONGEXP) {
+						menu_state = MENU_CAMERA_FOCUS_TIME;
+					} else {
+						menu_state = MENU_TIMELSP_START_STOP;
+					}
 
 					break;
 				case BUTTON_RIGHT_SHORT:
@@ -146,7 +150,11 @@ void menu_fsm(uint8_t button_event) {
 					break;
 				case BUTTON_DOWN_SHORT:
 				case BUTTON_DOWN_LONG:
-					menu_state = MENU_TIMELSP_START_STOP;
+					if (camera_mode == MODE_LONGEXP) {
+						menu_state = MENU_CAMERA_FOCUS_TIME;
+					} else {
+						menu_state = MENU_TIMELSP_START_STOP;
+					}
 
 					break;
 				case BUTTON_LEFT_SHORT:
@@ -170,12 +178,20 @@ void menu_fsm(uint8_t button_event) {
 			switch (button_event) {
 				case BUTTON_UP_SHORT:
 				case BUTTON_UP_LONG:
-					menu_state = MENU_LONGEXP_START_CANCEL;
+					if (camera_mode == MODE_TIMELAPSE) {
+						menu_state = MENU_DISPLAY_BRIGHTNESS;
+					} else {
+						menu_state = MENU_LONGEXP_START_CANCEL;
+					}
 
 					break;
 				case BUTTON_DOWN_SHORT:
 				case BUTTON_DOWN_LONG:
-					menu_state = MENU_TIMEDLY_START_CANCEL;
+					if (camera_mode == MODE_TIMELAPSE) {
+						menu_state = MENU_CAMERA_FOCUS_TIME;
+					} else {
+						menu_state = MENU_TIMEDLY_START_CANCEL;
+					}
 
 					break;
 				case BUTTON_RIGHT_SHORT:
@@ -199,12 +215,20 @@ void menu_fsm(uint8_t button_event) {
 			switch (button_event) {
 				case BUTTON_UP_SHORT:
 				case BUTTON_UP_LONG:
-					menu_state = MENU_LONGEXP_START_CANCEL;
+					if (camera_mode == MODE_TIMELAPSE) {
+						menu_state = MENU_DISPLAY_BRIGHTNESS;
+					} else {
+						menu_state = MENU_LONGEXP_START_CANCEL;
+					}
 
 					break;
 				case BUTTON_DOWN_SHORT:
 				case BUTTON_DOWN_LONG:
-					menu_state = MENU_TIMEDLY_START_CANCEL;
+					if (camera_mode == MODE_TIMELAPSE) {
+						menu_state = MENU_CAMERA_FOCUS_TIME;
+					} else {
+						menu_state = MENU_TIMEDLY_START_CANCEL;
+					}
 
 					break;
 				case BUTTON_LEFT_SHORT:
@@ -230,12 +254,20 @@ void menu_fsm(uint8_t button_event) {
 			switch (button_event) {
 				case BUTTON_UP_SHORT:
 				case BUTTON_UP_LONG:
-					menu_state = MENU_LONGEXP_START_CANCEL;
+					if (camera_mode == MODE_TIMELAPSE) {
+						menu_state = MENU_DISPLAY_BRIGHTNESS;
+					} else {
+						menu_state = MENU_LONGEXP_START_CANCEL;
+					}
 
 					break;
 				case BUTTON_DOWN_SHORT:
 				case BUTTON_DOWN_LONG:
-					menu_state = MENU_TIMEDLY_START_CANCEL;
+					if (camera_mode == MODE_TIMELAPSE) {
+						menu_state = MENU_CAMERA_FOCUS_TIME;
+					} else {
+						menu_state = MENU_TIMEDLY_START_CANCEL;
+					}
 
 					break;
 				case BUTTON_LEFT_SHORT:
@@ -259,7 +291,11 @@ void menu_fsm(uint8_t button_event) {
 			switch (button_event) {
 				case BUTTON_UP_SHORT:
 				case BUTTON_UP_LONG:
-					menu_state = MENU_TIMELSP_START_STOP;
+					if (camera_mode == MODE_TIMEDELAY) {
+						menu_state = MENU_DISPLAY_BRIGHTNESS;
+					} else {
+						menu_state = MENU_TIMELSP_START_STOP;
+					}
 
 					break;
 				case BUTTON_DOWN_SHORT:
@@ -289,7 +325,11 @@ void menu_fsm(uint8_t button_event) {
 			switch (button_event) {
 				case BUTTON_UP_SHORT:
 				case BUTTON_UP_LONG:
-					menu_state = MENU_TIMELSP_START_STOP;
+					if (camera_mode == MODE_TIMEDELAY) {
+						menu_state = MENU_DISPLAY_BRIGHTNESS;
+					} else {
+						menu_state = MENU_TIMELSP_START_STOP;
+					}
 
 					break;
 				case BUTTON_DOWN_SHORT:
@@ -318,7 +358,21 @@ void menu_fsm(uint8_t button_event) {
 			switch (button_event) {
 				case BUTTON_UP_SHORT:
 				case BUTTON_UP_LONG:
-					menu_state = MENU_TIMEDLY_START_CANCEL;
+					switch (camera_mode) {
+						case MODE_LONGEXP:
+							menu_state = MENU_LONGEXP_START_CANCEL;
+
+							break;
+						case MODE_TIMELAPSE:
+							menu_state = MENU_TIMELSP_START_STOP;
+
+							break;
+						case MODE_TIMEDELAY:
+						default:
+							menu_state = MENU_TIMEDLY_START_CANCEL;
+
+							break;
+					}					
 
 					break;
 				case BUTTON_DOWN_SHORT:
@@ -344,7 +398,21 @@ void menu_fsm(uint8_t button_event) {
 			switch (button_event) {
 				case BUTTON_UP_SHORT:
 				case BUTTON_UP_LONG:
-					menu_state = MENU_TIMEDLY_START_CANCEL;
+					switch (camera_mode) {
+						case MODE_LONGEXP:
+							menu_state = MENU_LONGEXP_START_CANCEL;
+
+							break;
+						case MODE_TIMELAPSE:
+							menu_state = MENU_TIMELSP_START_STOP;
+
+							break;
+						case MODE_TIMEDELAY:
+						default:
+							menu_state = MENU_TIMEDLY_START_CANCEL;
+
+							break;
+					}
 
 					break;
 				case BUTTON_DOWN_SHORT:
@@ -375,7 +443,21 @@ void menu_fsm(uint8_t button_event) {
 			switch (button_event) {
 				case BUTTON_UP_SHORT:
 				case BUTTON_UP_LONG:
-					menu_state = MENU_TIMEDLY_START_CANCEL;
+					switch (camera_mode) {
+						case MODE_LONGEXP:
+							menu_state = MENU_LONGEXP_START_CANCEL;
+
+							break;
+						case MODE_TIMELAPSE:
+							menu_state = MENU_TIMELSP_START_STOP;
+
+							break;
+						case MODE_TIMEDELAY:
+						default:
+							menu_state = MENU_TIMEDLY_START_CANCEL;
+
+							break;
+					}
 
 					break;
 				case BUTTON_DOWN_SHORT:
@@ -409,7 +491,21 @@ void menu_fsm(uint8_t button_event) {
 					break;
 				case BUTTON_DOWN_SHORT:
 				case BUTTON_DOWN_LONG:
-					menu_state = MENU_LONGEXP_START_CANCEL;
+					switch (camera_mode) {
+						case MODE_LONGEXP:
+						default:
+							menu_state = MENU_LONGEXP_START_CANCEL;
+
+							break;
+						case MODE_TIMELAPSE:
+							menu_state = MENU_TIMELSP_START_STOP;
+
+							break;
+						case MODE_TIMEDELAY:
+							menu_state = MENU_TIMEDLY_START_CANCEL;
+
+							break;
+					}
 
 					break;
 				case BUTTON_RIGHT_SHORT:
@@ -434,7 +530,21 @@ void menu_fsm(uint8_t button_event) {
 					break;
 				case BUTTON_DOWN_SHORT:
 				case BUTTON_DOWN_LONG:
-					menu_state = MENU_LONGEXP_START_CANCEL;
+					switch (camera_mode) {
+						case MODE_LONGEXP:
+						default:
+							menu_state = MENU_LONGEXP_START_CANCEL;
+
+							break;
+						case MODE_TIMELAPSE:
+							menu_state = MENU_TIMELSP_START_STOP;
+
+							break;
+						case MODE_TIMEDELAY:
+							menu_state = MENU_TIMEDLY_START_CANCEL;
+
+							break;
+					}
 
 					break;
 				case BUTTON_LEFT_SHORT:
@@ -467,7 +577,21 @@ void menu_fsm(uint8_t button_event) {
 					break;
 				case BUTTON_DOWN_SHORT:
 				case BUTTON_DOWN_LONG:
-					menu_state = MENU_LONGEXP_START_CANCEL;
+					switch (camera_mode) {
+						case MODE_LONGEXP:
+						default:
+							menu_state = MENU_LONGEXP_START_CANCEL;
+
+							break;
+						case MODE_TIMELAPSE:
+							menu_state = MENU_TIMELSP_START_STOP;
+
+							break;
+						case MODE_TIMEDELAY:
+							menu_state = MENU_TIMEDLY_START_CANCEL;
+
+							break;
+					}
 
 					break;
 				case BUTTON_LEFT_SHORT:
@@ -498,7 +622,21 @@ void menu_fsm(uint8_t button_event) {
 					break;
 				case BUTTON_DOWN_SHORT:
 				case BUTTON_DOWN_LONG:
-					menu_state = MENU_LONGEXP_START_CANCEL;
+					switch (camera_mode) {
+						case MODE_LONGEXP:
+						default:
+							menu_state = MENU_LONGEXP_START_CANCEL;
+
+							break;
+						case MODE_TIMELAPSE:
+							menu_state = MENU_TIMELSP_START_STOP;
+
+							break;
+						case MODE_TIMEDELAY:
+							menu_state = MENU_TIMEDLY_START_CANCEL;
+
+							break;
+					}
 
 					break;
 				case BUTTON_LEFT_SHORT:
