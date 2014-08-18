@@ -2,7 +2,7 @@
 
 	Project		: Shutter Pod
 	File		: pwm.cpp
-	Description	: PWM interupts, functions and settings
+	Description	: PWM interrupts, functions and settings
 	Date		: 7/8/2010
 
 	Shutter Pod is an open source hardware timer for SLR cameras.
@@ -44,7 +44,7 @@ debounce btn_db_left(&call_back, BUTTON_LEFT_SHORT, BUTTON_LEFT_LONG);
 debounce btn_db_right(&call_back, BUTTON_RIGHT_SHORT, BUTTON_RIGHT_LONG);
 debounce btn_db_select(&call_back, BUTTON_SELECT_SHORT, BUTTON_SELECT_LONG);
 
-// Configure the PWM output for the backlight, contrast and button debouncing.
+// Configure the PWM output for the back light, contrast and button debouncing.
 void pwm_init(void) {
 	// Configure Duty Cycle
 	set_contrast_dc(sys_param.contrast_level);
@@ -60,7 +60,7 @@ void pwm_init(void) {
 //	TCCR0A = 0xA3;
 	TCCR0B = 0x02;
 
-	// Enable timer 0 overflow interupt
+	// Enable timer 0 overflow interrupt
 	TIMSK0 |= 0x01;
 }
 
@@ -71,7 +71,7 @@ void pwm_deinit(void) {
 	TIMSK0 = 0x00;
 }
 
-// Set the duty cycle for the backlight
+// Set the duty cycle for the back light
 void set_backlight_dc(uint8_t value) {
 	if (value > 0) {
 		TCCR0A = 0xA3;
@@ -84,11 +84,12 @@ void set_backlight_dc(uint8_t value) {
 
 // Set the duty cycle for the contract
 void set_contrast_dc(uint8_t value) {
-	OCR0A = 128 + (value / 2);
+	OCR0A = value;
 }
 
-// General system timing interupt
+// General system timing interrupt
 ISR(TIMER0_OVF_vect) {
+
 	btn_db_up.update((bool)(BUTTON_PIN & (1 << BUTTON_UP)));
 	btn_db_down.update((bool)(BUTTON_PIN & (1 << BUTTON_DOWN)));
 	btn_db_left.update((bool)(BUTTON_PIN & (1 << BUTTON_LEFT)));
