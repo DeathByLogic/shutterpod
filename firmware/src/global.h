@@ -55,8 +55,8 @@
 #define	CAMERA_DIR			DDRB
 #define	CAMERA_MASK			0x30
 
-#define	SHUTTER_PIN			PORTB5
-#define FOCUS_PIN			PORTB4
+#define	SHUTTER_PIN			PORTB4
+#define FOCUS_PIN			PORTB5
 
 // Low battery input
 #define LOW_BATTERY_PORT	PORTD

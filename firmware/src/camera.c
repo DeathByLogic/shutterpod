@@ -36,6 +36,9 @@ CAMERA_MODES camera_mode = MODE_IDLE;
 
 unsigned long timeout_count;
 
+unsigned long tick_count;
+unsigned long tick_sum;
+
 // Configure timer 2 for delays
 void timing_init(void) {
 	// Configure Time/Counter 1 for PWM
@@ -71,17 +74,17 @@ void timing_deinit(void) {
 // Trigger shutter or focus pin
 void set_shutter(bool value) {
 	if (value) {
-		SETBITS(CAMERA_PORT, 1<<5);
+		SETBITS(CAMERA_PORT, 1<<4);
 	} else {
-		CLEARBITS(CAMERA_PORT, 1<<5);
+		CLEARBITS(CAMERA_PORT, 1<<4);
 	}
 }
 
 void set_focus(bool value) {
 	if (value) {
-		SETBITS(CAMERA_PORT, 1<<4);
+		SETBITS(CAMERA_PORT, 1<<5);
 	} else {
-		CLEARBITS(CAMERA_PORT, 1<<4);
+		CLEARBITS(CAMERA_PORT, 1<<5);
 	}
 }
 
@@ -99,24 +102,25 @@ ISR (TIMER1_OVF_vect) {
 
 void camera_FSM() {
 	static CAMERA_STATES camera_state = STATE_IDLE;
-	static unsigned long tick_count;
-	static unsigned long tick_sum;
 
-	// Increment tick count
-	if (camera_state != STATE_IDLE)
+	// Check camera state
+	if (camera_state != STATE_IDLE) {
+		// Increment tick count
 		tick_count++;
+	} else {
+		// Reset tick count for next operation
+		tick_count = 0;
+		tick_sum = 0;
+	}
 
 	// Check current state and see what to do
 	switch (camera_state) {
 		case STATE_IDLE:
-			// Reset tick count for next state
-			tick_count = 0;
-			tick_sum = 0;
-			
-			if (camera_mode == MODE_LONGEXP) {
-				// Turn on focus
-				set_focus(true);
+			// Disable camera tiggers
+			set_shutter(false);
+			set_focus(false);
 
+			if (camera_mode == MODE_LONGEXP) {
 				// Start long exposure loop
 				camera_state = STATE_LE_FOCUS;			
 			} else if (camera_mode == MODE_TIMELAPSE) {
@@ -137,13 +141,10 @@ void camera_FSM() {
 		case STATE_LE_FOCUS:
 			if (camera_mode == MODE_LONGEXP) {
 				if (tick_count >= sys_param.focus_time) {
-					// Add tick count to sum
-					tick_sum += sys_param.focus_time;
-
-					// Turn off focus
-					set_focus(false);
-
 					camera_state = STATE_LE_FOCUS_DELAY;
+				} else {
+					// Turn on focus
+					set_focus(true);
 				}
 			} else {
 				camera_state = STATE_CANCEL;
@@ -153,13 +154,10 @@ void camera_FSM() {
 		case STATE_LE_FOCUS_DELAY:
 			if (camera_mode == MODE_LONGEXP) {
 				if (tick_count >= (sys_param.shutter_delay + sys_param.focus_time)) {
-					// Add tick count to sum
-					tick_sum += sys_param.shutter_delay;
-
-					// Turn on shutter
-					set_shutter(true);
-
 					camera_state = STATE_LE_SHUTTER;
+				} else {
+					// Turn off focus
+					set_focus(false);
 				}
 			} else {
 				camera_state = STATE_CANCEL;
@@ -172,13 +170,13 @@ void camera_FSM() {
 					// Turn off long exposure flag 
 					camera_mode = MODE_IDLE;
 
-					// Turn off shutter
-					set_shutter(false);
-
 					// Update the LCD display
 					update_display();
 
 					camera_state = STATE_IDLE;
+				} else {
+					// Turn on shutter
+					set_shutter(true);
 				}
 			} else {
 				camera_state = STATE_CANCEL;

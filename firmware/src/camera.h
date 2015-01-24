@@ -79,6 +79,9 @@ uint8_t get_day(unsigned long *);
 
 // External global variables
 extern CAMERA_MODES camera_mode;
+
 extern unsigned long timeout_count;
+extern unsigned long tick_count;
+extern unsigned long tick_sum;
 
 #endif
